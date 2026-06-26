@@ -29,3 +29,17 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+/* --- Mini-CRM custom --- */
+.kpi-card {
+  border: none;
+  border-radius: .75rem;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.1);
+}
+.kpi-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+.kpi-label { font-size: .85rem; text-transform: uppercase; letter-spacing: .03em; }
+.table thead th { white-space: nowrap; }
+.navbar-brand i { vertical-align: -2px; }

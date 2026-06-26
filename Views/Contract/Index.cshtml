@@ -1,0 +1,110 @@
+@model PagedResult<Contract>
+@{
+    ViewData["Title"] = "Contrats";
+    var search = ViewBag.Search as string;
+    var status = ViewBag.Status as ContractStatus?;
+
+    string ContractBadge(ContractStatus s) => s switch
+    {
+        ContractStatus.Active => "bg-success",
+        ContractStatus.Expired => "bg-secondary",
+        ContractStatus.Cancelled => "bg-danger",
+        ContractStatus.Draft => "bg-warning text-dark",
+        _ => "bg-light text-dark"
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0"><i class="bi bi-file-earmark-text"></i> Contrats</h1>
+    <div>
+        <a asp-action="ExportCsv" asp-route-search="@search" asp-route-status="@status" class="btn btn-outline-success">
+            <i class="bi bi-download"></i> Exporter CSV
+        </a>
+        <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nouveau contrat</a>
+    </div>
+</div>
+
+<form asp-action="Index" method="get" class="row g-2 mb-3">
+    <div class="col-md-6">
+        <input type="text" name="search" value="@search" class="form-control" placeholder="Rechercher par titre ou client..." />
+    </div>
+    <div class="col-md-3">
+        <select name="status" class="form-select" asp-items="Html.GetEnumSelectList<ContractStatus>()">
+            <option value="">-- Tous les statuts --</option>
+        </select>
+    </div>
+    <div class="col-md-3 d-grid d-md-flex gap-2">
+        <button class="btn btn-outline-primary" type="submit"><i class="bi bi-funnel"></i> Filtrer</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Réinitialiser</a>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Titre</th>
+                <th>Client</th>
+                <th class="text-end">Montant</th>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Statut</th>
+                <th class="text-end">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Items.Any())
+            {
+                <tr><td colspan="7" class="text-center text-muted py-4">Aucun contrat trouvé.</td></tr>
+            }
+            @foreach (var c in Model.Items)
+            {
+                <tr>
+                    <td class="fw-semibold">
+                        @c.Title
+                        @if (c.IsExpiringSoon)
+                        {
+                            <span class="badge bg-warning text-dark ms-1"><i class="bi bi-clock"></i> Expire bientôt</span>
+                        }
+                    </td>
+                    <td><a asp-controller="Client" asp-action="Details" asp-route-id="@c.ClientId">@c.Client?.Name</a></td>
+                    <td class="text-end">@c.Amount.ToString("N2") €</td>
+                    <td>@c.StartDate.ToString("dd/MM/yyyy")</td>
+                    <td>@c.EndDate.ToString("dd/MM/yyyy")</td>
+                    <td><span class="badge @ContractBadge(c.Status)">@c.Status</span></td>
+                    <td class="text-end">
+                        <a asp-action="Details" asp-route-id="@c.Id" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
+                        <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                        <a asp-action="Delete" asp-route-id="@c.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber - 1)"
+                   asp-route-search="@search" asp-route-status="@status">Précédent</a>
+            </li>
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i"
+                       asp-route-search="@search" asp-route-status="@status">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber + 1)"
+                   asp-route-search="@search" asp-route-status="@status">Suivant</a>
+            </li>
+        </ul>
+    </nav>
+    <p class="text-center text-muted small">@Model.TotalCount contrat(s) au total</p>
+}

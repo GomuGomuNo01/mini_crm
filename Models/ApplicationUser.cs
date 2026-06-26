@@ -1,6 +1,7 @@
-﻿namespace DefaultNamespace;
+using Microsoft.AspNetCore.Identity;
 
-public class ApplicationUser
+namespace MiniCrm.Models;
+
+public class ApplicationUser : IdentityUser
 {
-    
 }
