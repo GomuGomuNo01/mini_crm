@@ -20,7 +20,14 @@
         <a asp-action="ExportCsv" asp-route-search="@search" asp-route-status="@status" class="btn btn-outline-secondary">
             <i class="bi bi-download"></i> Exporter CSV
         </a>
-        <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nouveau contrat</a>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nouveau contrat</a>
+        }
+        else
+        {
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-plus-lg"></i> Nouveau contrat</button>
+        }
     </div>
 </div>
 
@@ -75,8 +82,16 @@
                     <td><span class="badge @ContractBadge(c.Status)">@c.Status</span></td>
                     <td class="text-end">
                         <a asp-action="Details" asp-route-id="@c.Id" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
-                        <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                        <a asp-action="Delete" asp-route-id="@c.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="Delete" asp-route-id="@c.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-primary" title="Modifier (admin)" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-pencil"></i></button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer (admin)" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-trash"></i></button>
+                        }
                     </td>
                 </tr>
             }

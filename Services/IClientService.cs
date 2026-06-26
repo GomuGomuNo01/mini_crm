@@ -7,6 +7,7 @@ public interface IClientService
     Task<IEnumerable<Client>> GetAllAsync(string? search = null);
     Task<Client?> GetByIdAsync(int id);
     Task CreateAsync(Client client);
-    Task UpdateAsync(Client client);
+    // Met à jour le client et renvoie un résumé « avant → après » des changements.
+    Task<string?> UpdateAsync(Client client);
     Task DeleteAsync(int id);
 }

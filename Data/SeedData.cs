@@ -37,6 +37,20 @@ public static class SeedData
             await userManager.AddToRoleAsync(admin, "Admin");
         }
 
+        // --- Utilisateur standard de démonstration (rôle User) ---
+        var user = await userManager.FindByEmailAsync("user@minicrm.dev");
+        if (user == null)
+        {
+            user = new ApplicationUser
+            {
+                UserName = "user@minicrm.dev",
+                Email = "user@minicrm.dev",
+                EmailConfirmed = true
+            };
+            await userManager.CreateAsync(user, "User@1234");
+            await userManager.AddToRoleAsync(user, "User");
+        }
+
         // --- Données de démonstration (clients + contrats) ---
         await SeedClientsAndContractsAsync(context);
     }

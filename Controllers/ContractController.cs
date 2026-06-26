@@ -13,11 +13,13 @@ public class ContractController : Controller
 {
     private readonly IContractService _contractService;
     private readonly IClientService _clientService;
+    private readonly IAuditService _auditService;
 
-    public ContractController(IContractService contractService, IClientService clientService)
+    public ContractController(IContractService contractService, IClientService clientService, IAuditService auditService)
     {
         _contractService = contractService;
         _clientService = clientService;
+        _auditService = auditService;
     }
 
     // GET: /Contract
@@ -39,6 +41,7 @@ public class ContractController : Controller
     }
 
     // GET: /Contract/Create
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create()
     {
         await PopulateClientsAsync();
@@ -48,6 +51,7 @@ public class ContractController : Controller
     // POST: /Contract/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(Contract contract)
     {
         if (!ModelState.IsValid)
@@ -56,11 +60,13 @@ public class ContractController : Controller
             return View(contract);
         }
         await _contractService.CreateAsync(contract);
+        await _auditService.LogAsync("Création", "Contrat", contract.Id, contract.Title);
         TempData["Success"] = "Contrat créé avec succès.";
         return RedirectToAction(nameof(Index));
     }
 
     // GET: /Contract/Edit/5
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id)
     {
         var contract = await _contractService.GetByIdAsync(id);
@@ -72,6 +78,7 @@ public class ContractController : Controller
     // POST: /Contract/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id, Contract contract)
     {
         if (id != contract.Id) return NotFound();
@@ -80,7 +87,8 @@ public class ContractController : Controller
             await PopulateClientsAsync(contract.ClientId);
             return View(contract);
         }
-        await _contractService.UpdateAsync(contract);
+        var diff = await _contractService.UpdateAsync(contract);
+        await _auditService.LogAsync("Modification", "Contrat", contract.Id, contract.Title, diff);
         TempData["Success"] = "Contrat mis à jour.";
         return RedirectToAction(nameof(Index));
     }
@@ -100,7 +108,9 @@ public class ContractController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
+        var contract = await _contractService.GetByIdAsync(id);
         await _contractService.DeleteAsync(id);
+        await _auditService.LogAsync("Suppression", "Contrat", id, contract?.Title);
         TempData["Success"] = "Contrat supprimé.";
         return RedirectToAction(nameof(Index));
     }

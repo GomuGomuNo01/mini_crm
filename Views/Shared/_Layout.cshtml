@@ -48,6 +48,16 @@
                 </a>
             </nav>
 
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="sidebar-section">Administration</div>
+                <nav class="sidebar-nav">
+                    <a class="sidebar-link @(IsActive("Audit") ? "active" : "")" asp-controller="Audit" asp-action="Index">
+                        <i class="bi bi-shield-lock"></i> Journal d'audit
+                    </a>
+                </nav>
+            }
+
             <div class="sidebar-footer">
                 <div class="sidebar-user">
                     <span class="avatar">@initials</span>
@@ -87,6 +97,24 @@
                 }
                 @RenderBody()
             </main>
+        </div>
+
+        <!-- Modal : accès refusé (action réservée aux admins) -->
+        <div class="modal fade" id="accessDeniedModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: var(--radius); border: 1px solid var(--border);">
+                    <div class="modal-body text-center p-4">
+                        <div class="mx-auto mb-3 d-grid" style="width:56px;height:56px;border-radius:50%;background:#fee2e2;color:#b91c1c;place-items:center;font-size:1.6rem;">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1">Accès refusé</h5>
+                        <p class="text-muted mb-4" style="font-size:.9rem;">
+                            Cette action est réservée aux administrateurs.
+                        </p>
+                        <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">J'ai compris</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 }

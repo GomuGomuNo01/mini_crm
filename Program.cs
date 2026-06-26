@@ -28,6 +28,8 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 // --- Services métier (pattern Interface + Service) ---
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddHttpContextAccessor();
 
 // --- MVC + protection globale des routes ---
 builder.Services.AddControllersWithViews();

@@ -10,10 +10,12 @@ namespace MiniCrm.Controllers;
 public class ClientController : Controller
 {
     private readonly IClientService _clientService;
+    private readonly IAuditService _auditService;
 
-    public ClientController(IClientService clientService)
+    public ClientController(IClientService clientService, IAuditService auditService)
     {
         _clientService = clientService;
+        _auditService = auditService;
     }
 
     // GET: /Client
@@ -33,20 +35,24 @@ public class ClientController : Controller
     }
 
     // GET: /Client/Create
+    [Authorize(Roles = "Admin")]
     public IActionResult Create() => View(new Client());
 
     // POST: /Client/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(Client client)
     {
         if (!ModelState.IsValid) return View(client);
         await _clientService.CreateAsync(client);
+        await _auditService.LogAsync("Création", "Client", client.Id, client.Name);
         TempData["Success"] = "Client créé avec succès.";
         return RedirectToAction(nameof(Index));
     }
 
     // GET: /Client/Edit/5
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id)
     {
         var client = await _clientService.GetByIdAsync(id);
@@ -57,11 +63,13 @@ public class ClientController : Controller
     // POST: /Client/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id, Client client)
     {
         if (id != client.Id) return NotFound();
         if (!ModelState.IsValid) return View(client);
-        await _clientService.UpdateAsync(client);
+        var diff = await _clientService.UpdateAsync(client);
+        await _auditService.LogAsync("Modification", "Client", client.Id, client.Name, diff);
         TempData["Success"] = "Client mis à jour.";
         return RedirectToAction(nameof(Index));
     }
@@ -81,7 +89,9 @@ public class ClientController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
+        var client = await _clientService.GetByIdAsync(id);
         await _clientService.DeleteAsync(id);
+        await _auditService.LogAsync("Suppression", "Client", id, client?.Name);
         TempData["Success"] = "Client supprimé.";
         return RedirectToAction(nameof(Index));
     }

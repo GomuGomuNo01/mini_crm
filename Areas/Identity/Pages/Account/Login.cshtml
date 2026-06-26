@@ -1,0 +1,43 @@
+@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Connexion";
+}
+
+<h1 class="mb-1">Connexion</h1>
+<p class="text-muted mb-4" style="font-size:.9rem;">Accédez à votre espace Mini-CRM.</p>
+
+<form id="account" method="post">
+    <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-warning py-2 px-3 mb-3" style="display:@(ViewData.ModelState.ErrorCount > 0 ? "block" : "none")"></div>
+
+    <div class="mb-3">
+        <label asp-for="Input.Email" class="form-label">Email</label>
+        <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="admin@minicrm.dev" />
+        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Password" class="form-label">Mot de passe</label>
+        <input asp-for="Input.Password" class="form-control" type="password" autocomplete="current-password" placeholder="••••••••" />
+        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="Input.RememberMe" class="form-check-input" />
+        <label asp-for="Input.RememberMe" class="form-check-label">Se souvenir de moi</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+</form>
+
+<p class="text-center text-muted mt-3 mb-0" style="font-size:.85rem;">
+    Pas encore de compte ?
+    <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Créer un compte</a>
+</p>
+
+<div class="alert mt-4 mb-0" style="background:#f8fafc;border:1px dashed var(--border-strong);font-size:.8rem;color:var(--text-muted);">
+    <strong>Démo :</strong> admin@minicrm.dev / Admin@1234
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

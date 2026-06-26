@@ -45,10 +45,29 @@ public class ClientService : IClientService
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(Client client)
+    public async Task<string?> UpdateAsync(Client client)
     {
-        _context.Clients.Update(client);
+        var existing = await _context.Clients.FirstOrDefaultAsync(c => c.Id == client.Id);
+        if (existing == null) return null;
+
+        var changes = new List<string>();
+        if (existing.Name != client.Name)
+            changes.Add($"Nom : « {existing.Name} » → « {client.Name} »");
+        if (existing.Email != client.Email)
+            changes.Add($"Email : « {existing.Email} » → « {client.Email} »");
+        if (existing.Sector != client.Sector)
+            changes.Add($"Secteur : « {existing.Sector ?? "—"} » → « {client.Sector ?? "—"} »");
+        if (existing.Status != client.Status)
+            changes.Add($"Statut : « {existing.Status} » → « {client.Status} »");
+
+        existing.Name = client.Name;
+        existing.Email = client.Email;
+        existing.Sector = client.Sector;
+        existing.Status = client.Status;
+
         await _context.SaveChangesAsync();
+
+        return changes.Count > 0 ? string.Join(" ; ", changes) : "Aucun changement";
     }
 
     public async Task DeleteAsync(int id)

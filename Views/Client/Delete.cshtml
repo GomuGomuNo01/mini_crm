@@ -3,23 +3,25 @@
     ViewData["Title"] = "Supprimer le client";
 }
 
-<div class="alert alert-warning">
-    Êtes-vous sûr de vouloir supprimer ce client ? Ses <strong>@Model.Contracts.Count contrat(s)</strong> seront également supprimés.
-</div>
-
-<div class="card shadow-sm mb-3">
-    <div class="card-body">
-        <dl class="row mb-0">
-            <dt class="col-sm-3">Nom</dt><dd class="col-sm-9">@Model.Name</dd>
-            <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@Model.Email</dd>
-            <dt class="col-sm-3">Secteur</dt><dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Sector) ? "-" : Model.Sector)</dd>
-            <dt class="col-sm-3">Statut</dt><dd class="col-sm-9">@Model.Status</dd>
-        </dl>
+<div class="mx-auto" style="max-width: 640px;">
+    <div class="alert alert-warning">
+        Êtes-vous sûr de vouloir supprimer ce client ? Ses <strong>@Model.Contracts.Count contrat(s)</strong> seront également supprimés.
     </div>
-</div>
 
-<form asp-action="Delete" method="post">
-    <input type="hidden" asp-for="Id" />
-    <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Confirmer la suppression</button>
-    <a asp-action="Index" class="btn btn-outline-secondary">Annuler</a>
-</form>
+    <div class="card mb-3">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Nom</dt><dd class="col-sm-9">@Model.Name</dd>
+                <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@Model.Email</dd>
+                <dt class="col-sm-3">Secteur</dt><dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Sector) ? "-" : Model.Sector)</dd>
+                <dt class="col-sm-3">Statut</dt><dd class="col-sm-9">@Model.Status</dd>
+            </dl>
+        </div>
+    </div>
+
+    <form asp-action="Delete" method="post" class="d-flex gap-2">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Confirmer la suppression</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Annuler</a>
+    </form>
+</div>

@@ -17,6 +17,7 @@ public interface IContractService
 
     Task<Contract?> GetByIdAsync(int id);
     Task CreateAsync(Contract contract);
-    Task UpdateAsync(Contract contract);
+    // Met à jour le contrat et renvoie un résumé « avant → après » des changements.
+    Task<string?> UpdateAsync(Contract contract);
     Task DeleteAsync(int id);
 }

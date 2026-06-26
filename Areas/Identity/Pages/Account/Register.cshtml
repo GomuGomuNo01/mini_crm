@@ -1,0 +1,40 @@
+@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Créer un compte";
+}
+
+<h1 class="mb-1">Créer un compte</h1>
+<p class="text-muted mb-4" style="font-size:.9rem;">Rejoignez votre espace Mini-CRM.</p>
+
+<form id="registerForm" method="post">
+    <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-warning py-2 px-3 mb-3" style="display:@(ViewData.ModelState.ErrorCount > 0 ? "block" : "none")"></div>
+
+    <div class="mb-3">
+        <label asp-for="Input.Email" class="form-label">Email</label>
+        <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="vous@exemple.com" />
+        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.Password" class="form-label">Mot de passe</label>
+        <input asp-for="Input.Password" class="form-control" type="password" autocomplete="new-password" placeholder="8 caractères minimum" />
+        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Input.ConfirmPassword" class="form-label">Confirmer le mot de passe</label>
+        <input asp-for="Input.ConfirmPassword" class="form-control" type="password" autocomplete="new-password" placeholder="••••••••" />
+        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Créer le compte</button>
+</form>
+
+<p class="text-center text-muted mt-3 mb-0" style="font-size:.85rem;">
+    Déjà inscrit ?
+    <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Se connecter</a>
+</p>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
