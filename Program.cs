@@ -42,6 +42,11 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
+// Culture française (dates, nombres, monnaie) pour toute l'application.
+var frCulture = new System.Globalization.CultureInfo("fr-FR");
+System.Globalization.CultureInfo.DefaultThreadCurrentCulture = frCulture;
+System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = frCulture;
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

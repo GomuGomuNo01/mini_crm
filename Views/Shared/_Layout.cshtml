@@ -1,95 +1,107 @@
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<MiniCrm.Models.ApplicationUser> SignInManager
 @inject UserManager<MiniCrm.Models.ApplicationUser> UserManager
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    bool IsActive(string c) => string.Equals(controller, c, StringComparison.OrdinalIgnoreCase);
+    var isSignedIn = SignInManager.IsSignedIn(User);
+    var userName = UserManager.GetUserName(User);
+    var initials = string.IsNullOrEmpty(userName) ? "?" : userName.Substring(0, 1).ToUpper();
+}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Mini-CRM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-<header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-3">
-        <div class="container">
-            <a class="navbar-brand fw-bold" asp-controller="Dashboard" asp-action="Index">
-                <i class="bi bi-kanban"></i> Mini-CRM
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navMain">
-                @if (SignInManager.IsSignedIn(User))
-                {
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
-                                <i class="bi bi-speedometer2"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Client" asp-action="Index">
-                                <i class="bi bi-people"></i> Clients
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Contract" asp-action="Index">
-                                <i class="bi bi-file-earmark-text"></i> Contrats
-                            </a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <span class="nav-link text-white-50">
-                                <i class="bi bi-person-circle"></i> @UserManager.GetUserName(User)
-                            </span>
-                        </li>
-                        <li class="nav-item">
-                            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout"
-                                  asp-route-returnUrl="@Url.Action("Index", "Home")" method="post">
-                                <button type="submit" class="btn btn-link nav-link">
-                                    <i class="bi bi-box-arrow-right"></i> Déconnexion
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                }
-                else
-                {
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">
-                                <i class="bi bi-box-arrow-in-right"></i> Connexion
-                            </a>
-                        </li>
-                    </ul>
-                }
+@if (isSignedIn)
+{
+    <div class="app-shell">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon"><i class="bi bi-kanban"></i></span>
+                Mini-CRM
             </div>
-        </div>
-    </nav>
-</header>
 
-<div class="container">
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle"></i> @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-    <main role="main" class="pb-3">
-        @RenderBody()
-    </main>
-</div>
+            <div class="sidebar-section">Pilotage</div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link @(IsActive("Dashboard") ? "active" : "")" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-grid-1x2"></i> Dashboard
+                </a>
+            </nav>
 
-<footer class="border-top footer text-muted mt-4">
-    <div class="container py-3">
-        &copy; @DateTime.Now.Year - Mini-CRM - Sokhar
+            <div class="sidebar-section">Gestion</div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link @(IsActive("Client") ? "active" : "")" asp-controller="Client" asp-action="Index">
+                    <i class="bi bi-people"></i> Clients
+                </a>
+                <a class="sidebar-link @(IsActive("Contract") ? "active" : "")" asp-controller="Contract" asp-action="Index">
+                    <i class="bi bi-file-earmark-text"></i> Contrats
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <span class="avatar">@initials</span>
+                    <div class="text-truncate">
+                        <div class="text-truncate" style="color:#fff;font-size:.85rem;">@userName</div>
+                        <small>Connecté</small>
+                    </div>
+                </div>
+                <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home")" method="post">
+                    <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-right"></i> Déconnexion</button>
+                </form>
+            </div>
+        </aside>
+
+        <div class="app-main">
+            <header class="topbar">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-outline-secondary btn-icon sidebar-toggle" type="button" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div>
+                        <h1>@(ViewData["Title"] ?? "Mini-CRM")</h1>
+                    </div>
+                </div>
+                <div class="d-none d-md-flex align-items-center gap-2 text-muted" style="font-size:.85rem;">
+                    <i class="bi bi-calendar3"></i> @DateTime.Now.ToString("dddd dd MMMM yyyy")
+                </div>
+            </header>
+
+            <main class="app-content">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle"></i> @TempData["Success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @RenderBody()
+            </main>
+        </div>
     </div>
-</footer>
+}
+else
+{
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-brand">
+                <span class="brand-icon"><i class="bi bi-kanban"></i></span>
+                Mini-CRM
+            </div>
+            @RenderBody()
+        </div>
+    </div>
+}
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

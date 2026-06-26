@@ -3,39 +3,35 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<h1 class="h3 mb-4"><i class="bi bi-speedometer2"></i> Dashboard</h1>
+<p class="text-muted mb-4" style="margin-top:-8px;">Vue d'ensemble de votre activité commerciale.</p>
 
 <div class="row g-3 mb-4">
     <div class="col-md-3 col-6">
-        <div class="card kpi-card text-white bg-primary h-100">
-            <div class="card-body">
-                <div class="kpi-value">@Model.TotalActiveClients</div>
-                <div class="kpi-label"><i class="bi bi-people"></i> Clients actifs</div>
-            </div>
+        <div class="kpi-card">
+            <div class="kpi-icon indigo"><i class="bi bi-people"></i></div>
+            <div class="kpi-value">@Model.TotalActiveClients</div>
+            <div class="kpi-label">Clients actifs</div>
         </div>
     </div>
     <div class="col-md-3 col-6">
-        <div class="card kpi-card text-white bg-success h-100">
-            <div class="card-body">
-                <div class="kpi-value">@Model.TotalActiveContracts</div>
-                <div class="kpi-label"><i class="bi bi-file-earmark-check"></i> Contrats actifs</div>
-            </div>
+        <div class="kpi-card">
+            <div class="kpi-icon green"><i class="bi bi-file-earmark-check"></i></div>
+            <div class="kpi-value">@Model.TotalActiveContracts</div>
+            <div class="kpi-label">Contrats actifs</div>
         </div>
     </div>
     <div class="col-md-3 col-6">
-        <div class="card kpi-card text-dark bg-warning h-100">
-            <div class="card-body">
-                <div class="kpi-value">@Model.ContractsExpiringSoon</div>
-                <div class="kpi-label"><i class="bi bi-clock-history"></i> Expirent &lt; 30j</div>
-            </div>
+        <div class="kpi-card">
+            <div class="kpi-icon amber"><i class="bi bi-clock-history"></i></div>
+            <div class="kpi-value">@Model.ContractsExpiringSoon</div>
+            <div class="kpi-label">Expirent &lt; 30 jours</div>
         </div>
     </div>
     <div class="col-md-3 col-6">
-        <div class="card kpi-card text-white bg-dark h-100">
-            <div class="card-body">
-                <div class="kpi-value">@Model.TotalContractValue.ToString("N0") €</div>
-                <div class="kpi-label"><i class="bi bi-cash-stack"></i> Valeur (actifs)</div>
-            </div>
+        <div class="kpi-card">
+            <div class="kpi-icon slate"><i class="bi bi-cash-stack"></i></div>
+            <div class="kpi-value">@Model.TotalContractValue.ToString("N0") €</div>
+            <div class="kpi-label">Valeur (contrats actifs)</div>
         </div>
     </div>
 </div>

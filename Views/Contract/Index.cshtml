@@ -15,9 +15,9 @@
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0"><i class="bi bi-file-earmark-text"></i> Contrats</h1>
-    <div>
-        <a asp-action="ExportCsv" asp-route-search="@search" asp-route-status="@status" class="btn btn-outline-success">
+    <p class="text-muted mb-0">@Model.TotalCount contrat@(Model.TotalCount > 1 ? "s" : "") au total</p>
+    <div class="d-flex gap-2">
+        <a asp-action="ExportCsv" asp-route-search="@search" asp-route-status="@status" class="btn btn-outline-secondary">
             <i class="bi bi-download"></i> Exporter CSV
         </a>
         <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nouveau contrat</a>
@@ -106,5 +106,4 @@
             </li>
         </ul>
     </nav>
-    <p class="text-center text-muted small">@Model.TotalCount contrat(s) au total</p>
 }

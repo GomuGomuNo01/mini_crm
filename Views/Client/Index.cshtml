@@ -12,7 +12,7 @@
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0"><i class="bi bi-people"></i> Clients</h1>
+    <p class="text-muted mb-0">@Model.Clients.Count() client@(Model.Clients.Count() > 1 ? "s" : "")</p>
     <a asp-action="Create" class="btn btn-primary">
         <i class="bi bi-plus-lg"></i> Nouveau client
     </a>
