@@ -53,6 +53,26 @@ public static class SeedData
 
         // --- Données de démonstration (clients + contrats) ---
         await SeedClientsAndContractsAsync(context);
+
+        // --- Catalogue des secteurs (à partir des secteurs existants) ---
+        await SeedSectorsAsync(context);
+    }
+
+    private static async Task SeedSectorsAsync(ApplicationDbContext context)
+    {
+        if (await context.Sectors.AnyAsync())
+            return;
+
+        var names = await context.Clients
+            .Where(c => c.Sector != null && c.Sector != "")
+            .Select(c => c.Sector!)
+            .Distinct()
+            .ToListAsync();
+
+        if (names.Count == 0) return;
+
+        context.Sectors.AddRange(names.Select(n => new Sector { Name = n }));
+        await context.SaveChangesAsync();
     }
 
     private static async Task SeedClientsAndContractsAsync(ApplicationDbContext context)

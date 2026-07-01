@@ -1,0 +1,57 @@
+@model PagedResult<MiniCrm.Models.Sector>
+@{
+    var search = ViewBag.Search as string;
+}
+
+<p class="text-muted mb-2 small">@Model.TotalCount secteur@(Model.TotalCount > 1 ? "s" : "") trouvé@(Model.TotalCount > 1 ? "s" : "")</p>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Secteur</th>
+                <th class="text-end">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Items.Any())
+            {
+                <tr><td colspan="2"><div class="empty-state"><i class="bi bi-tags"></i>Aucun secteur trouvé.</div></td></tr>
+            }
+            @foreach (var s in Model.Items)
+            {
+                <tr>
+                    <td class="fw-semibold"><i class="bi bi-tag text-muted me-1"></i> @s.Name</td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-primary" title="Modifier"
+                                data-modal-url="@Url.Action("Edit", new { id = s.Id })" data-title="Modifier le secteur"><i class="bi bi-pencil"></i></button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer"
+                                data-modal-url="@Url.Action("Delete", new { id = s.Id })" data-title=""><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber - 1)" asp-route-search="@search">Précédent</a>
+            </li>
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-search="@search">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber + 1)" asp-route-search="@search">Suivant</a>
+            </li>
+        </ul>
+    </nav>
+}

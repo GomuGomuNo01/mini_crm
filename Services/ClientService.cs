@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MiniCrm.Data;
 using MiniCrm.Models;
+using MiniCrm.ViewModels;
 
 namespace MiniCrm.Services;
 
@@ -31,6 +32,49 @@ public class ClientService : IClientService
         return await query.OrderByDescending(c => c.CreatedAt).ToListAsync();
     }
 
+    public async Task<PagedResult<Client>> GetPagedAsync(string? search = null, int page = 1, int pageSize = 8)
+    {
+        if (page < 1) page = 1;
+
+        var query = _context.Clients
+            .Include(c => c.Contracts)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            search = search.Trim();
+            query = query.Where(c =>
+                c.Name.Contains(search) ||
+                c.Email.Contains(search) ||
+                (c.Sector != null && c.Sector.Contains(search)));
+        }
+
+        query = query.OrderByDescending(c => c.CreatedAt);
+
+        var total = await query.CountAsync();
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<Client>
+        {
+            Items = items,
+            PageNumber = page,
+            PageSize = pageSize,
+            TotalCount = total
+        };
+    }
+
+    public async Task<IReadOnlyList<string>> GetSectorsAsync()
+    {
+        // Liste proposée dans le formulaire = catalogue géré par l'admin.
+        return await _context.Sectors
+            .OrderBy(s => s.Name)
+            .Select(s => s.Name)
+            .ToListAsync();
+    }
+
     public async Task<Client?> GetByIdAsync(int id)
     {
         return await _context.Clients
@@ -41,24 +85,17 @@ public class ClientService : IClientService
     public async Task CreateAsync(Client client)
     {
         client.CreatedAt = DateTime.UtcNow;
+        await EnsureSectorExistsAsync(client.Sector);
         _context.Clients.Add(client);
         await _context.SaveChangesAsync();
     }
 
-    public async Task<string?> UpdateAsync(Client client)
+    public async Task UpdateAsync(Client client)
     {
         var existing = await _context.Clients.FirstOrDefaultAsync(c => c.Id == client.Id);
-        if (existing == null) return null;
+        if (existing == null) return;
 
-        var changes = new List<string>();
-        if (existing.Name != client.Name)
-            changes.Add($"Nom : « {existing.Name} » → « {client.Name} »");
-        if (existing.Email != client.Email)
-            changes.Add($"Email : « {existing.Email} » → « {client.Email} »");
-        if (existing.Sector != client.Sector)
-            changes.Add($"Secteur : « {existing.Sector ?? "—"} » → « {client.Sector ?? "—"} »");
-        if (existing.Status != client.Status)
-            changes.Add($"Statut : « {existing.Status} » → « {client.Status} »");
+        await EnsureSectorExistsAsync(client.Sector);
 
         existing.Name = client.Name;
         existing.Email = client.Email;
@@ -66,8 +103,18 @@ public class ClientService : IClientService
         existing.Status = client.Status;
 
         await _context.SaveChangesAsync();
+    }
 
-        return changes.Count > 0 ? string.Join(" ; ", changes) : "Aucun changement";
+    // Si le secteur saisi (ex. via l'option « Autre » du formulaire) n'existe pas
+    // encore dans le catalogue, on l'y ajoute automatiquement.
+    private async Task EnsureSectorExistsAsync(string? sectorName)
+    {
+        if (string.IsNullOrWhiteSpace(sectorName)) return;
+
+        var name = sectorName.Trim();
+        var exists = await _context.Sectors.AnyAsync(s => s.Name.ToLower() == name.ToLower());
+        if (!exists)
+            _context.Sectors.Add(new Sector { Name = name });
     }
 
     public async Task DeleteAsync(int id)

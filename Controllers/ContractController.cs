@@ -13,14 +13,14 @@ public class ContractController : Controller
 {
     private readonly IContractService _contractService;
     private readonly IClientService _clientService;
-    private readonly IAuditService _auditService;
 
-    public ContractController(IContractService contractService, IClientService clientService, IAuditService auditService)
+    public ContractController(IContractService contractService, IClientService clientService)
     {
         _contractService = contractService;
         _clientService = clientService;
-        _auditService = auditService;
     }
+
+    private bool IsAjax => Request.Headers["X-Requested-With"] == "XMLHttpRequest";
 
     // GET: /Contract
     public async Task<IActionResult> Index(string? search, ContractStatus? status, int page = 1)
@@ -29,22 +29,30 @@ public class ContractController : Controller
 
         ViewBag.Search = search;
         ViewBag.Status = status;
+
+        // Requête AJAX (filtre dynamique) : renvoyer uniquement le tableau + pagination.
+        if (IsAjax)
+            return PartialView("_ContractTable", result);
+
         return View(result);
     }
 
-    // GET: /Contract/Details/5
+    // GET: /Contract/Details/5 (panneau latéral en lecture seule)
     public async Task<IActionResult> Details(int id)
     {
         var contract = await _contractService.GetByIdAsync(id);
         if (contract == null) return NotFound();
+
+        if (IsAjax) return PartialView("_ContractDetails", contract);
         return View(contract);
     }
 
-    // GET: /Contract/Create
+    // GET: /Contract/Create (formulaire dans un modal)
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create()
     {
         await PopulateClientsAsync();
+        if (IsAjax) return PartialView("_ContractForm", new Contract());
         return View(new Contract());
     }
 
@@ -57,21 +65,26 @@ public class ContractController : Controller
         if (!ModelState.IsValid)
         {
             await PopulateClientsAsync(contract.ClientId);
-            return View(contract);
+            return IsAjax ? PartialView("_ContractForm", contract) : View(contract);
         }
+
         await _contractService.CreateAsync(contract);
-        await _auditService.LogAsync("Création", "Contrat", contract.Id, contract.Title);
+
+        if (IsAjax) return Json(new { success = true, message = $"Contrat « {contract.Title} » créé avec succès." });
+
         TempData["Success"] = "Contrat créé avec succès.";
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: /Contract/Edit/5
+    // GET: /Contract/Edit/5 (formulaire dans le panneau latéral)
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id)
     {
         var contract = await _contractService.GetByIdAsync(id);
         if (contract == null) return NotFound();
+
         await PopulateClientsAsync(contract.ClientId);
+        if (IsAjax) return PartialView("_ContractForm", contract);
         return View(contract);
     }
 
@@ -85,20 +98,25 @@ public class ContractController : Controller
         if (!ModelState.IsValid)
         {
             await PopulateClientsAsync(contract.ClientId);
-            return View(contract);
+            return IsAjax ? PartialView("_ContractForm", contract) : View(contract);
         }
-        var diff = await _contractService.UpdateAsync(contract);
-        await _auditService.LogAsync("Modification", "Contrat", contract.Id, contract.Title, diff);
+
+        await _contractService.UpdateAsync(contract);
+
+        if (IsAjax) return Json(new { success = true, message = $"Contrat « {contract.Title} » mis à jour." });
+
         TempData["Success"] = "Contrat mis à jour.";
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: /Contract/Delete/5
+    // GET: /Contract/Delete/5 (confirmation dans un modal)
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var contract = await _contractService.GetByIdAsync(id);
         if (contract == null) return NotFound();
+
+        if (IsAjax) return PartialView("_ContractDeleteConfirm", contract);
         return View(contract);
     }
 
@@ -110,7 +128,9 @@ public class ContractController : Controller
     {
         var contract = await _contractService.GetByIdAsync(id);
         await _contractService.DeleteAsync(id);
-        await _auditService.LogAsync("Suppression", "Contrat", id, contract?.Title);
+
+        if (IsAjax) return Json(new { success = true, message = $"Contrat « {contract?.Title} » supprimé." });
+
         TempData["Success"] = "Contrat supprimé.";
         return RedirectToAction(nameof(Index));
     }
@@ -143,10 +163,19 @@ public class ContractController : Controller
         return File(bytes, "text/csv", fileName);
     }
 
-    private static string Escape(string value)
+    private static string Escape(string? value)
     {
-        if (value.Contains(';') || value.Contains('"') || value.Contains('\n'))
+        if (string.IsNullOrEmpty(value)) return string.Empty;
+
+        // Anti CSV/Formula injection (CWE-1236) : une cellule commençant par
+        // = + - @ (ou tab/CR) est interprétée comme une formule par Excel/Sheets.
+        // On la neutralise en la préfixant d'une apostrophe.
+        if ("=+-@\t\r".IndexOf(value[0]) >= 0)
+            value = "'" + value;
+
+        if (value.Contains(';') || value.Contains('"') || value.Contains('\n') || value.Contains('\r'))
             return "\"" + value.Replace("\"", "\"\"") + "\"";
+
         return value;
     }
 

@@ -21,7 +21,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <p class="text-muted mb-0">
         <i class="bi bi-shield-lock"></i>
-        Traçabilité des actions (qui, quoi, quand) — @Model.TotalCount entrée@(Model.TotalCount > 1 ? "s" : "")
+        Traçabilité des actions - @Model.TotalCount entrée@(Model.TotalCount > 1 ? "s" : "")
     </p>
 </div>
 
@@ -59,7 +59,7 @@
                     </td>
                     <td>@log.EntityType</td>
                     <td>
-                        @(string.IsNullOrEmpty(log.EntityLabel) ? "—" : log.EntityLabel)
+                        @(string.IsNullOrEmpty(log.EntityLabel) ? "Non renseigné" : log.EntityLabel)
                         @if (log.EntityId.HasValue)
                         {
                             <span class="text-muted small">#@log.EntityId</span>
@@ -68,11 +68,11 @@
                     <td style="max-width: 360px;">
                         @if (string.IsNullOrEmpty(log.Details))
                         {
-                            <span class="text-muted">—</span>
+                            <span class="text-muted">Aucun détail</span>
                         }
                         else
                         {
-                            <span class="small">@log.Details</span>
+                            <span class="small audit-details">@log.Details</span>
                         }
                     </td>
                 </tr>

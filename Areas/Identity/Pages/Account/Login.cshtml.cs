@@ -58,14 +58,19 @@ public class LoginModel : PageModel
         if (!ModelState.IsValid)
             return Page();
 
+        // lockoutOnFailure: true => incrémente le compteur d'échecs (verrouillage anti-force brute).
         var result = await _signInManager.PasswordSignInAsync(
-            Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+            Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
 
         if (result.Succeeded)
             return LocalRedirect(returnUrl);
 
         if (result.IsLockedOut)
-            return RedirectToPage("./Lockout");
+        {
+            ModelState.AddModelError(string.Empty,
+                "Compte temporairement verrouillé suite à un trop grand nombre de tentatives. Réessayez dans quelques minutes.");
+            return Page();
+        }
 
         ModelState.AddModelError(string.Empty, "Email ou mot de passe incorrect.");
         return Page();

@@ -12,6 +12,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Client> Clients => Set<Client>();
     public DbSet<Contract> Contracts => Set<Contract>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<Sector> Sectors => Set<Sector>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

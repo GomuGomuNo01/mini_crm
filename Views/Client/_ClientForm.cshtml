@@ -1,0 +1,52 @@
+@model Client
+@{
+    var sectors = (ViewBag.Sectors as IReadOnlyList<string>) ?? new List<string>();
+    var isEdit = Model.Id != 0;
+    var action = isEdit ? "Edit" : "Create";
+}
+
+<form asp-action="@action" asp-route-id="@(isEdit ? (int?)Model.Id : null)" method="post" data-ajax-form>
+    <div asp-validation-summary="ModelOnly" class="alert alert-warning py-2 px-3 mb-3"
+         style="display:@(ViewData.ModelState.ErrorCount > 0 ? "block" : "none")"></div>
+    @if (isEdit)
+    {
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CreatedAt" />
+    }
+
+    <div class="form-floating mb-3">
+        <input asp-for="Name" class="form-control" placeholder="Nom" />
+        <label asp-for="Name"></label>
+        <span asp-validation-for="Name" class="text-danger small"></span>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input asp-for="Email" class="form-control" placeholder="Email" />
+        <label asp-for="Email"></label>
+        <span asp-validation-for="Email" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Secteur</label>
+        <select class="form-select mb-2" data-sector-select>
+            <option value="">-- Choisir un secteur --</option>
+            @foreach (var s in sectors)
+            {
+                <option value="@s">@s</option>
+            }
+            <option value="__other__">Autre…</option>
+        </select>
+        <input asp-for="Sector" class="form-control" data-sector-input placeholder="Saisir le nouveau secteur" />
+        <span asp-validation-for="Sector" class="text-danger small"></span>
+    </div>
+
+    <div class="form-floating mb-3">
+        <select asp-for="Status" asp-items="Html.GetEnumSelectList<ClientStatus>()" class="form-select"></select>
+        <label asp-for="Status"></label>
+    </div>
+
+    <div class="d-flex gap-2 mt-2">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Enregistrer</button>
+        <button type="button" class="btn btn-outline-secondary" data-crud-close>Annuler</button>
+    </div>
+</form>

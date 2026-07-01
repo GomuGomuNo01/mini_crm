@@ -1,21 +1,14 @@
-@model ClientViewModel
+@model PagedResult<Client>
 @{
     ViewData["Title"] = "Clients";
-
-    string StatusBadge(ClientStatus s) => s switch
-    {
-        ClientStatus.Active => "bg-success",
-        ClientStatus.Inactive => "bg-secondary",
-        ClientStatus.Prospect => "bg-info text-dark",
-        _ => "bg-light text-dark"
-    };
+    var search = ViewBag.Search as string;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <p class="text-muted mb-0">@Model.Clients.Count() client@(Model.Clients.Count() > 1 ? "s" : "")</p>
+    <p class="text-muted mb-0">Gestion des clients</p>
     @if (User.IsInRole("Admin"))
     {
-        <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nouveau client</a>
+        <button type="button" class="btn btn-primary" data-modal-url="@Url.Action("Create")" data-title="Nouveau client"><i class="bi bi-plus-lg"></i> Nouveau client</button>
     }
     else
     {
@@ -23,60 +16,14 @@
     }
 </div>
 
-<form asp-action="Index" method="get" class="mb-3">
+<form class="mb-3" data-live-filter data-target="#clientTableContainer" data-url="@Url.Action("Index")" onsubmit="return false;">
     <div class="input-group">
-        <input type="text" name="search" value="@Model.Search" class="form-control"
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" name="search" value="@search" class="form-control" data-filter autocomplete="off"
                placeholder="Rechercher par nom, email ou secteur..." />
-        <button class="btn btn-outline-primary" type="submit"><i class="bi bi-search"></i> Rechercher</button>
-        @if (!string.IsNullOrEmpty(Model.Search))
-        {
-            <a asp-action="Index" class="btn btn-outline-secondary">Réinitialiser</a>
-        }
     </div>
 </form>
 
-<div class="card shadow-sm">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-            <tr>
-                <th>Nom</th>
-                <th>Email</th>
-                <th>Secteur</th>
-                <th>Statut</th>
-                <th class="text-center">Nb contrats</th>
-                <th class="text-end">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            @if (!Model.Clients.Any())
-            {
-                <tr><td colspan="6" class="text-center text-muted py-4">Aucun client trouvé.</td></tr>
-            }
-            @foreach (var c in Model.Clients)
-            {
-                <tr>
-                    <td class="fw-semibold">@c.Name</td>
-                    <td><a href="mailto:@c.Email">@c.Email</a></td>
-                    <td>@(string.IsNullOrEmpty(c.Sector) ? "-" : c.Sector)</td>
-                    <td><span class="badge @StatusBadge(c.Status)">@c.Status</span></td>
-                    <td class="text-center">@c.Contracts.Count</td>
-                    <td class="text-end">
-                        <a asp-action="Details" asp-route-id="@c.Id" class="btn btn-sm btn-outline-secondary" title="Détails"><i class="bi bi-eye"></i></a>
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary" title="Modifier"><i class="bi bi-pencil"></i></a>
-                            <a asp-action="Delete" asp-route-id="@c.Id" class="btn btn-sm btn-outline-danger" title="Supprimer"><i class="bi bi-trash"></i></a>
-                        }
-                        else
-                        {
-                            <button type="button" class="btn btn-sm btn-outline-primary" title="Modifier (admin)" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-pencil"></i></button>
-                            <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer (admin)" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-trash"></i></button>
-                        }
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
-    </div>
+<div id="clientTableContainer">
+    <partial name="_ClientTable" model="Model" />
 </div>

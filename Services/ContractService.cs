@@ -80,32 +80,10 @@ public class ContractService : IContractService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<string?> UpdateAsync(Contract contract)
+    public async Task UpdateAsync(Contract contract)
     {
-        var existing = await _context.Contracts
-            .Include(c => c.Client)
-            .FirstOrDefaultAsync(c => c.Id == contract.Id);
-        if (existing == null) return null;
-
-        var changes = new List<string>();
-        if (existing.Title != contract.Title)
-            changes.Add($"Titre : « {existing.Title} » → « {contract.Title} »");
-        if (existing.Amount != contract.Amount)
-            changes.Add($"Montant : « {existing.Amount:N2} € » → « {contract.Amount:N2} € »");
-        if (existing.StartDate.Date != contract.StartDate.Date)
-            changes.Add($"Début : « {existing.StartDate:dd/MM/yyyy} » → « {contract.StartDate:dd/MM/yyyy} »");
-        if (existing.EndDate.Date != contract.EndDate.Date)
-            changes.Add($"Fin : « {existing.EndDate:dd/MM/yyyy} » → « {contract.EndDate:dd/MM/yyyy} »");
-        if (existing.Status != contract.Status)
-            changes.Add($"Statut : « {existing.Status} » → « {contract.Status} »");
-        if (existing.ClientId != contract.ClientId)
-        {
-            var newClientName = await _context.Clients
-                .Where(c => c.Id == contract.ClientId)
-                .Select(c => c.Name)
-                .FirstOrDefaultAsync();
-            changes.Add($"Client : « {existing.Client?.Name ?? "—"} » → « {newClientName ?? "—"} »");
-        }
+        var existing = await _context.Contracts.FirstOrDefaultAsync(c => c.Id == contract.Id);
+        if (existing == null) return;
 
         existing.Title = contract.Title;
         existing.Amount = contract.Amount;
@@ -115,8 +93,6 @@ public class ContractService : IContractService
         existing.ClientId = contract.ClientId;
 
         await _context.SaveChangesAsync();
-
-        return changes.Count > 0 ? string.Join(" ; ", changes) : "Aucun changement";
     }
 
     public async Task DeleteAsync(int id)

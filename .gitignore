@@ -22,3 +22,6 @@ artifacts/
 
 ## Secrets locaux
 appsettings.*.Local.json
+
+## ngrok (contient le authtoken secret)
+ngrok.yml

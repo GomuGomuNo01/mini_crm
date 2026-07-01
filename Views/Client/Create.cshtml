@@ -9,25 +9,29 @@
         <form asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" placeholder="Ex. Boulangerie Martin" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+            <div class="form-floating mb-3">
+                <input asp-for="Name" class="form-control" placeholder="Nom" />
+                <label asp-for="Name"></label>
+                <span asp-validation-for="Name" class="text-danger small"></span>
             </div>
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control" placeholder="contact@exemple.fr" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+            <div class="form-floating mb-3">
+                <input asp-for="Email" class="form-control" placeholder="Email" />
+                <label asp-for="Email"></label>
+                <span asp-validation-for="Email" class="text-danger small"></span>
             </div>
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Sector" class="form-label"></label>
-                    <input asp-for="Sector" class="form-control" placeholder="Ex. Commerce" />
-                    <span asp-validation-for="Sector" class="text-danger"></span>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input asp-for="Sector" class="form-control" placeholder="Secteur" />
+                        <label asp-for="Sector"></label>
+                        <span asp-validation-for="Sector" class="text-danger small"></span>
+                    </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Status" class="form-label"></label>
-                    <select asp-for="Status" asp-items="Html.GetEnumSelectList<ClientStatus>()" class="form-select"></select>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <select asp-for="Status" asp-items="Html.GetEnumSelectList<ClientStatus>()" class="form-select"></select>
+                        <label asp-for="Status"></label>
+                    </div>
                 </div>
             </div>
 

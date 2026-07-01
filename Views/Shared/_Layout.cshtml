@@ -52,6 +52,12 @@
             {
                 <div class="sidebar-section">Administration</div>
                 <nav class="sidebar-nav">
+                    <a class="sidebar-link @(IsActive("User") ? "active" : "")" asp-controller="User" asp-action="Index">
+                        <i class="bi bi-person-gear"></i> Utilisateurs
+                    </a>
+                    <a class="sidebar-link @(IsActive("Sector") ? "active" : "")" asp-controller="Sector" asp-action="Index">
+                        <i class="bi bi-tags"></i> Secteurs
+                    </a>
                     <a class="sidebar-link @(IsActive("Audit") ? "active" : "")" asp-controller="Audit" asp-action="Index">
                         <i class="bi bi-shield-lock"></i> Journal d'audit
                     </a>
@@ -72,10 +78,12 @@
             </div>
         </aside>
 
+        <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
         <div class="app-main">
             <header class="topbar">
                 <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-outline-secondary btn-icon sidebar-toggle" type="button" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                    <button class="btn btn-outline-secondary btn-icon sidebar-toggle" type="button" onclick="toggleSidebar()" aria-label="Menu">
                         <i class="bi bi-list"></i>
                     </button>
                     <div>
@@ -90,10 +98,7 @@
             <main class="app-content">
                 @if (TempData["Success"] != null)
                 {
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="bi bi-check-circle"></i> @TempData["Success"]
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
+                    <input type="hidden" id="flashSuccess" value="@TempData["Success"]" />
                 }
                 @RenderBody()
             </main>
@@ -116,16 +121,37 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal CRUD centré (création / suppression), non fermable au clic extérieur -->
+        <div class="modal fade" id="crudModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: var(--radius); border: 1px solid var(--border);">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="crudModalTitle"></h5>
+                        <button type="button" class="btn-close" data-crud-close aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body" id="crudModalBody"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panneau latéral droit (détails lecture seule / édition) -->
+        <div class="offcanvas offcanvas-end crud-panel" tabindex="-1" id="crudPanel" aria-labelledby="crudPanelTitle">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="crudPanelTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+            </div>
+            <div class="offcanvas-body" id="crudPanelBody"></div>
+        </div>
+
+        <!-- Conteneur de notifications (toasts) en haut à droite -->
+        <div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer" style="z-index:1090;"></div>
     </div>
 }
 else
 {
     <div class="auth-wrapper">
         <div class="auth-card">
-            <div class="auth-brand">
-                <span class="brand-icon"><i class="bi bi-kanban"></i></span>
-                Mini-CRM
-            </div>
             @RenderBody()
         </div>
     </div>

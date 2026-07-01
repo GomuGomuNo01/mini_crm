@@ -1,0 +1,42 @@
+@model Contract
+@{
+    string ContractBadge(ContractStatus s) => s switch
+    {
+        ContractStatus.Active => "bg-success",
+        ContractStatus.Expired => "bg-secondary",
+        ContractStatus.Cancelled => "bg-danger",
+        ContractStatus.Draft => "bg-warning text-dark",
+        _ => "bg-light text-dark"
+    };
+}
+
+<div class="detail-header">
+    <div class="detail-avatar"><i class="bi bi-file-earmark-text"></i></div>
+    <div class="min-w-0">
+        <h4 class="text-truncate">@Model.Title</h4>
+        <span class="badge @ContractBadge(Model.Status)">@Model.Status</span>
+        @if (Model.IsExpiringSoon)
+        {
+            <span class="badge bg-warning text-dark ms-1"><i class="bi bi-clock"></i> Expire bientôt</span>
+        }
+    </div>
+</div>
+
+<div class="detail-list">
+    <div class="detail-row">
+        <span class="detail-label"><i class="bi bi-person"></i> Client</span>
+        <span class="detail-value">@Model.Client?.Name</span>
+    </div>
+    <div class="detail-row">
+        <span class="detail-label"><i class="bi bi-cash"></i> Montant</span>
+        <span class="detail-value">@Model.Amount.ToString("N2") €</span>
+    </div>
+    <div class="detail-row">
+        <span class="detail-label"><i class="bi bi-calendar-event"></i> Date de début</span>
+        <span class="detail-value">@Model.StartDate.ToString("dd/MM/yyyy")</span>
+    </div>
+    <div class="detail-row">
+        <span class="detail-label"><i class="bi bi-calendar-check"></i> Date de fin</span>
+        <span class="detail-value">@Model.EndDate.ToString("dd/MM/yyyy")</span>
+    </div>
+</div>
