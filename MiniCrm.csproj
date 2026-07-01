@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Le projet de tests vit dans un sous-dossier ; exclu du globbing par défaut. -->
+    <Compile Remove="MiniCrm.Tests/**/*.cs" />
+    <Content Remove="MiniCrm.Tests/**/*" />
+    <None Remove="MiniCrm.Tests/**/*" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.9" />
     <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.7" />
