@@ -19,6 +19,7 @@ recherche dynamique).
 - [Journal d'audit](#journal-daudit)
 - [Sécurité](#sécurité)
 - [Exposer l'application avec ngrok](#exposer-lapplication-avec-ngrok)
+- [Tests](#tests)
 - [Commandes utiles](#commandes-utiles)
 - [Dépannage](#dépannage)
 
@@ -296,6 +297,46 @@ l'application.
    ```
 3. ngrok affiche une URL publique (`https://xxxx.ngrok-free.app`) redirigeant
    vers l'application locale — pratique pour une démonstration à distance.
+
+---
+
+## Tests
+
+Le projet [`MiniCrm.Tests`](MiniCrm.Tests/) contient une suite de **52 tests
+unitaires** (xUnit) couvrant la logique métier :
+
+| Fichier | Ce qui est testé |
+|---|---|
+| `Services/ClientServiceTests.cs` | CRUD client, recherche, pagination, création automatique d'un secteur à partir du formulaire |
+| `Services/ContractServiceTests.cs` | CRUD contrat, filtre par statut et recherche, export |
+| `Services/SectorServiceTests.cs` | Catalogue de secteurs, doublons, renommage avec propagation aux clients |
+| `Services/AuditServiceTests.cs` | Écriture des entrées d'audit, troncature, pagination |
+| `Data/AuditSaveChangesInterceptorTests.cs` | **Audit automatique** : création/modification/suppression détectées sans appel manuel, détails multi-lignes, absence d'audit hors authentification, pas de boucle infinie |
+| `Models/ContractTests.cs` | Calcul de `IsExpiringSoon` (bornes de la fenêtre des 30 jours) |
+
+Les tests utilisent le provider **EF Core InMemory** (aucune dépendance à
+MySQL/WAMP n'est nécessaire pour les exécuter).
+
+```powershell
+# Lancer toute la suite de tests
+dotnet test MiniCrm.Tests/MiniCrm.Tests.csproj
+
+# Lancer un seul fichier / une seule classe de tests
+dotnet test MiniCrm.Tests/MiniCrm.Tests.csproj --filter "FullyQualifiedName~ClientServiceTests"
+```
+
+> Le projet de tests vit dans un sous-dossier de la solution ; le `.csproj`
+> principal exclut explicitement ce dossier de son *globbing* par défaut pour
+> éviter tout conflit de compilation.
+
+### Résultat de la dernière exécution
+
+```
+Série de tests pour D:\PROJET PERSO\MiniCrm\MiniCrm.Tests\bin\Debug\net10.0\MiniCrm.Tests.dll (.NETCoreApp,Version=v10.0)
+Au total, 1 fichiers de test ont correspondu au modèle spécifié.
+
+Réussi!  - échec :     0, réussite :    52, ignorée(s) :     0, total :    52, durée : 1 s - MiniCrm.Tests.dll (net10.0)
+```
 
 ---
 
