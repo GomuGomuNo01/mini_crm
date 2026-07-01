@@ -1,0 +1,56 @@
+@model List<MiniCrm.ViewModels.UserListItem>
+
+<p class="text-muted mb-2 small">@Model.Count utilisateur@(Model.Count > 1 ? "s" : "")</p>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th class="text-end">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Any())
+            {
+                <tr><td colspan="3"><div class="empty-state"><i class="bi bi-people"></i>Aucun utilisateur.</div></td></tr>
+            }
+            @foreach (var u in Model)
+            {
+                <tr>
+                    <td class="fw-semibold">
+                        @u.Email
+                        @if (u.IsCurrentUser)
+                        {
+                            <span class="badge bg-secondary ms-1">vous</span>
+                        }
+                    </td>
+                    <td>
+                        @if (u.Role == "Admin")
+                        {
+                            <span class="badge bg-primary">Admin</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">User</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        @if (u.IsCurrentUser)
+                        {
+                            <span class="text-muted small">Compte actuel</span>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer"
+                                    data-modal-url="@Url.Action("Delete", new { id = u.Id })" data-title=""><i class="bi bi-trash"></i></button>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

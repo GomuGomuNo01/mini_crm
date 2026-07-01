@@ -1,0 +1,25 @@
+@model Contract
+@{
+    ViewData["Title"] = "Supprimer le contrat";
+}
+
+<div class="mx-auto" style="max-width: 640px;">
+    <div class="alert alert-warning">Êtes-vous sûr de vouloir supprimer ce contrat ?</div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Titre</dt><dd class="col-sm-9">@Model.Title</dd>
+                <dt class="col-sm-3">Client</dt><dd class="col-sm-9">@Model.Client?.Name</dd>
+                <dt class="col-sm-3">Montant</dt><dd class="col-sm-9">@Model.Amount.ToString("N2") €</dd>
+                <dt class="col-sm-3">Statut</dt><dd class="col-sm-9">@Model.Status</dd>
+            </dl>
+        </div>
+    </div>
+
+    <form asp-action="Delete" method="post" class="d-flex gap-2">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Confirmer la suppression</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Annuler</a>
+    </form>
+</div>

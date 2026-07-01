@@ -1,0 +1,48 @@
+@model Contract
+@{
+    ViewData["Title"] = "Détails du contrat";
+
+    string ContractBadge(ContractStatus s) => s switch
+    {
+        ContractStatus.Active => "bg-success",
+        ContractStatus.Expired => "bg-secondary",
+        ContractStatus.Cancelled => "bg-danger",
+        ContractStatus.Draft => "bg-warning text-dark",
+        _ => "bg-light text-dark"
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0"><i class="bi bi-file-earmark-text"></i> @Model.Title</h1>
+    <div class="d-flex gap-2">
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary"><i class="bi bi-pencil"></i> Modifier</a>
+        }
+        else
+        {
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-pencil"></i> Modifier</button>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary">Retour</a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Client</dt>
+            <dd class="col-sm-9"><a asp-controller="Client" asp-action="Details" asp-route-id="@Model.ClientId">@Model.Client?.Name</a></dd>
+            <dt class="col-sm-3">Montant</dt><dd class="col-sm-9">@Model.Amount.ToString("N2") €</dd>
+            <dt class="col-sm-3">Date de début</dt><dd class="col-sm-9">@Model.StartDate.ToString("dd/MM/yyyy")</dd>
+            <dt class="col-sm-3">Date de fin</dt>
+            <dd class="col-sm-9">
+                @Model.EndDate.ToString("dd/MM/yyyy")
+                @if (Model.IsExpiringSoon)
+                {
+                    <span class="badge bg-warning text-dark ms-1"><i class="bi bi-clock"></i> Expire bientôt</span>
+                }
+            </dd>
+            <dt class="col-sm-3">Statut</dt><dd class="col-sm-9"><span class="badge @ContractBadge(Model.Status)">@Model.Status</span></dd>
+        </dl>
+    </div>
+</div>

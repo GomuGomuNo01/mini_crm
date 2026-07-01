@@ -1,0 +1,46 @@
+@model PagedResult<Contract>
+@{
+    ViewData["Title"] = "Contrats";
+    var search = ViewBag.Search as string;
+    var status = ViewBag.Status as ContractStatus?;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <p class="text-muted mb-0">Gestion des contrats</p>
+    <div class="d-flex gap-2">
+        <a id="exportCsvLink" asp-action="ExportCsv" asp-route-search="@search" asp-route-status="@status" class="btn btn-outline-secondary">
+            <i class="bi bi-download"></i> Exporter CSV
+        </a>
+        @if (User.IsInRole("Admin"))
+        {
+            <button type="button" class="btn btn-primary" data-modal-url="@Url.Action("Create")" data-title="Nouveau contrat"><i class="bi bi-plus-lg"></i> Nouveau contrat</button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-plus-lg"></i> Nouveau contrat</button>
+        }
+    </div>
+</div>
+
+<form class="row g-2 mb-3" data-live-filter data-target="#contractTableContainer" data-url="@Url.Action("Index")"
+      data-export-url="@Url.Action("ExportCsv")" data-export-target="#exportCsvLink" onsubmit="return false;">
+    <div class="col-md-6">
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" name="search" value="@search" class="form-control" data-filter autocomplete="off"
+                   placeholder="Rechercher par titre ou client..." />
+        </div>
+    </div>
+    <div class="col-md-4">
+        <select name="status" class="form-select" data-filter asp-items="Html.GetEnumSelectList<ContractStatus>()">
+            <option value="">-- Tous les statuts --</option>
+        </select>
+    </div>
+    <div class="col-md-2 d-grid">
+        <a asp-action="Index" class="btn btn-outline-secondary" data-reset><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</a>
+    </div>
+</form>
+
+<div id="contractTableContainer">
+    <partial name="_ContractTable" model="Model" />
+</div>

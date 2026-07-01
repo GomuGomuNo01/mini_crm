@@ -1,0 +1,83 @@
+@model PagedResult<Client>
+@{
+    var search = ViewBag.Search as string;
+
+    string StatusBadge(ClientStatus s) => s switch
+    {
+        ClientStatus.Active => "bg-success",
+        ClientStatus.Inactive => "bg-secondary",
+        ClientStatus.Prospect => "bg-info text-dark",
+        _ => "bg-light text-dark"
+    };
+}
+
+<p class="text-muted mb-2 small">@Model.TotalCount client@(Model.TotalCount > 1 ? "s" : "") trouvé@(Model.TotalCount > 1 ? "s" : "")</p>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Secteur</th>
+                <th>Statut</th>
+                <th class="text-center">Nb contrats</th>
+                <th class="text-end">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Items.Any())
+            {
+                <tr><td colspan="6"><div class="empty-state"><i class="bi bi-search"></i>Aucun client trouvé.</div></td></tr>
+            }
+            @foreach (var c in Model.Items)
+            {
+                <tr>
+                    <td class="fw-semibold">@c.Name</td>
+                    <td><a href="mailto:@c.Email">@c.Email</a></td>
+                    <td>@(string.IsNullOrEmpty(c.Sector) ? "-" : c.Sector)</td>
+                    <td><span class="badge @StatusBadge(c.Status)">@c.Status</span></td>
+                    <td class="text-center">@c.Contracts.Count</td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" title="Détails"
+                                data-panel-url="@Url.Action("Details", new { id = c.Id })" data-title="Détails du client"><i class="bi bi-eye"></i></button>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-primary" title="Modifier"
+                                    data-panel-url="@Url.Action("Edit", new { id = c.Id })" data-title="Modifier le client"><i class="bi bi-pencil"></i></button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer"
+                                    data-modal-url="@Url.Action("Delete", new { id = c.Id })" data-title=""><i class="bi bi-trash"></i></button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-primary" title="Modifier (admin)" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-pencil"></i></button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer (admin)" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-trash"></i></button>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber - 1)" asp-route-search="@search">Précédent</a>
+            </li>
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-search="@search">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber + 1)" asp-route-search="@search">Suivant</a>
+            </li>
+        </ul>
+    </nav>
+}

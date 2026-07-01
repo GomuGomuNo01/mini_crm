@@ -1,0 +1,98 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<p class="text-muted mb-4" style="margin-top:-8px;">Vue d'ensemble de votre activité commerciale.</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="kpi-card">
+            <div class="kpi-icon indigo"><i class="bi bi-people"></i></div>
+            <div class="kpi-value">@Model.TotalActiveClients</div>
+            <div class="kpi-label">Clients actifs</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="kpi-card">
+            <div class="kpi-icon green"><i class="bi bi-file-earmark-check"></i></div>
+            <div class="kpi-value">@Model.TotalActiveContracts</div>
+            <div class="kpi-label">Contrats actifs</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="kpi-card">
+            <div class="kpi-icon amber"><i class="bi bi-clock-history"></i></div>
+            <div class="kpi-value">@Model.ContractsExpiringSoon</div>
+            <div class="kpi-label">Expirent &lt; 30 jours</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="kpi-card">
+            <div class="kpi-icon slate"><i class="bi bi-cash-stack"></i></div>
+            <div class="kpi-value">@Model.TotalContractValue.ToString("N0") €</div>
+            <div class="kpi-label">Valeur (contrats actifs)</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-semibold">Contrats par statut</div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <canvas id="statusChart" style="max-height: 280px;"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-semibold">
+                <i class="bi bi-exclamation-circle text-warning"></i> Contrats expirant bientôt (5 prochains)
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                    <tr><th>Titre</th><th>Client</th><th>Fin</th><th class="text-end">Montant</th></tr>
+                    </thead>
+                    <tbody>
+                    @if (!Model.ExpiringContracts.Any())
+                    {
+                        <tr><td colspan="4" class="text-center text-muted py-3">Aucun contrat n'expire prochainement.</td></tr>
+                    }
+                    @foreach (var c in Model.ExpiringContracts)
+                    {
+                        <tr>
+                            <td><a asp-controller="Contract" asp-action="Details" asp-route-id="@c.Id">@c.Title</a></td>
+                            <td>@c.Client?.Name</td>
+                            <td><span class="badge bg-warning text-dark">@c.EndDate.ToString("dd/MM/yyyy")</span></td>
+                            <td class="text-end">@c.Amount.ToString("N2") €</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script>
+        const statusData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ContractsByStatus));
+        new Chart(document.getElementById('statusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(statusData),
+                datasets: [{
+                    data: Object.values(statusData),
+                    backgroundColor: ['#198754', '#6c757d', '#dc3545', '#ffc107']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    </script>
+}

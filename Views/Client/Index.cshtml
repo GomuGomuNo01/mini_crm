@@ -1,0 +1,29 @@
+@model PagedResult<Client>
+@{
+    ViewData["Title"] = "Clients";
+    var search = ViewBag.Search as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <p class="text-muted mb-0">Gestion des clients</p>
+    @if (User.IsInRole("Admin"))
+    {
+        <button type="button" class="btn btn-primary" data-modal-url="@Url.Action("Create")" data-title="Nouveau client"><i class="bi bi-plus-lg"></i> Nouveau client</button>
+    }
+    else
+    {
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-plus-lg"></i> Nouveau client</button>
+    }
+</div>
+
+<form class="mb-3" data-live-filter data-target="#clientTableContainer" data-url="@Url.Action("Index")" onsubmit="return false;">
+    <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" name="search" value="@search" class="form-control" data-filter autocomplete="off"
+               placeholder="Rechercher par nom, email ou secteur..." />
+    </div>
+</form>
+
+<div id="clientTableContainer">
+    <partial name="_ClientTable" model="Model" />
+</div>

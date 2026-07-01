@@ -1,0 +1,63 @@
+@model Contract
+@{
+    ViewData["Title"] = "Modifier le contrat";
+}
+
+<div class="card mx-auto" style="max-width: 760px;">
+    <div class="card-header"><i class="bi bi-pencil-square text-primary"></i> Modifier le contrat</div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-floating mb-3">
+                <input asp-for="Title" class="form-control" placeholder="Titre" />
+                <label asp-for="Title"></label>
+                <span asp-validation-for="Title" class="text-danger small"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <select asp-for="ClientId" asp-items="ViewBag.Clients" class="form-select">
+                    <option value="">-- Choisir un client --</option>
+                </select>
+                <label asp-for="ClientId"></label>
+                <span asp-validation-for="ClientId" class="text-danger small"></span>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-floating mb-3">
+                        <input asp-for="Amount" class="form-control" placeholder="Montant" />
+                        <label asp-for="Amount">Montant (€)</label>
+                        <span asp-validation-for="Amount" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-floating mb-3">
+                        <input asp-for="StartDate" class="form-control" type="date" placeholder="Date de début" />
+                        <label asp-for="StartDate"></label>
+                        <span asp-validation-for="StartDate" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-floating mb-3">
+                        <input asp-for="EndDate" class="form-control" type="date" placeholder="Date de fin" />
+                        <label asp-for="EndDate"></label>
+                        <span asp-validation-for="EndDate" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-floating mb-3">
+                <select asp-for="Status" asp-items="Html.GetEnumSelectList<ContractStatus>()" class="form-select"></select>
+                <label asp-for="Status"></label>
+            </div>
+
+            <div class="d-flex gap-2 mt-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Enregistrer</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,50 +1,165 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<MiniCrm.Models.ApplicationUser> SignInManager
+@inject UserManager<MiniCrm.Models.ApplicationUser> UserManager
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    bool IsActive(string c) => string.Equals(controller, c, StringComparison.OrdinalIgnoreCase);
+    var isSignedIn = SignInManager.IsSignedIn(User);
+    var userName = UserManager.GetUserName(User);
+    var initials = string.IsNullOrEmpty(userName) ? "?" : userName.Substring(0, 1).ToUpper();
+}
+<!DOCTYPE html>
+<html lang="fr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MiniCrm</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - Mini-CRM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/MiniCrm.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MiniCrm</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+@if (isSignedIn)
+{
+    <div class="app-shell">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon"><i class="bi bi-kanban"></i></span>
+                Mini-CRM
+            </div>
+
+            <div class="sidebar-section">Pilotage</div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link @(IsActive("Dashboard") ? "active" : "")" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-grid-1x2"></i> Dashboard
+                </a>
+            </nav>
+
+            <div class="sidebar-section">Gestion</div>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link @(IsActive("Client") ? "active" : "")" asp-controller="Client" asp-action="Index">
+                    <i class="bi bi-people"></i> Clients
+                </a>
+                <a class="sidebar-link @(IsActive("Contract") ? "active" : "")" asp-controller="Contract" asp-action="Index">
+                    <i class="bi bi-file-earmark-text"></i> Contrats
+                </a>
+            </nav>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="sidebar-section">Administration</div>
+                <nav class="sidebar-nav">
+                    <a class="sidebar-link @(IsActive("User") ? "active" : "")" asp-controller="User" asp-action="Index">
+                        <i class="bi bi-person-gear"></i> Utilisateurs
+                    </a>
+                    <a class="sidebar-link @(IsActive("Sector") ? "active" : "")" asp-controller="Sector" asp-action="Index">
+                        <i class="bi bi-tags"></i> Secteurs
+                    </a>
+                    <a class="sidebar-link @(IsActive("Audit") ? "active" : "")" asp-controller="Audit" asp-action="Index">
+                        <i class="bi bi-shield-lock"></i> Journal d'audit
+                    </a>
+                </nav>
+            }
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <span class="avatar">@initials</span>
+                    <div class="text-truncate">
+                        <div class="text-truncate" style="color:#fff;font-size:.85rem;">@userName</div>
+                        <small>Connecté</small>
+                    </div>
+                </div>
+                <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home")" method="post">
+                    <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-right"></i> Déconnexion</button>
+                </form>
+            </div>
+        </aside>
+
+        <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+        <div class="app-main">
+            <header class="topbar">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-outline-secondary btn-icon sidebar-toggle" type="button" onclick="toggleSidebar()" aria-label="Menu">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div>
+                        <h1>@(ViewData["Title"] ?? "Mini-CRM")</h1>
+                    </div>
+                </div>
+                <div class="d-none d-md-flex align-items-center gap-2 text-muted" style="font-size:.85rem;">
+                    <i class="bi bi-calendar3"></i> @DateTime.Now.ToString("dddd dd MMMM yyyy")
+                </div>
+            </header>
+
+            <main class="app-content">
+                @if (TempData["Success"] != null)
+                {
+                    <input type="hidden" id="flashSuccess" value="@TempData["Success"]" />
+                }
+                @RenderBody()
+            </main>
+        </div>
+
+        <!-- Modal : accès refusé (action réservée aux admins) -->
+        <div class="modal fade" id="accessDeniedModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: var(--radius); border: 1px solid var(--border);">
+                    <div class="modal-body text-center p-4">
+                        <div class="mx-auto mb-3 d-grid" style="width:56px;height:56px;border-radius:50%;background:#fee2e2;color:#b91c1c;place-items:center;font-size:1.6rem;">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1">Accès refusé</h5>
+                        <p class="text-muted mb-4" style="font-size:.9rem;">
+                            Cette action est réservée aux administrateurs.
+                        </p>
+                        <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">J'ai compris</button>
+                    </div>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - MiniCrm - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+        <!-- Modal CRUD centré (création / suppression), non fermable au clic extérieur -->
+        <div class="modal fade" id="crudModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: var(--radius); border: 1px solid var(--border);">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="crudModalTitle"></h5>
+                        <button type="button" class="btn-close" data-crud-close aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body" id="crudModalBody"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panneau latéral droit (détails lecture seule / édition) -->
+        <div class="offcanvas offcanvas-end crud-panel" tabindex="-1" id="crudPanel" aria-labelledby="crudPanelTitle">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="crudPanelTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+            </div>
+            <div class="offcanvas-body" id="crudPanelBody"></div>
+        </div>
+
+        <!-- Conteneur de notifications (toasts) en haut à droite -->
+        <div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer" style="z-index:1090;"></div>
+    </div>
+}
+else
+{
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            @RenderBody()
+        </div>
+    </div>
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,0 +1,65 @@
+@model Client
+@{
+    ViewData["Title"] = "Détails du client";
+
+    string ContractBadge(ContractStatus s) => s switch
+    {
+        ContractStatus.Active => "bg-success",
+        ContractStatus.Expired => "bg-secondary",
+        ContractStatus.Cancelled => "bg-danger",
+        ContractStatus.Draft => "bg-warning text-dark",
+        _ => "bg-light text-dark"
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0"><i class="bi bi-person-vcard"></i> @Model.Name</h1>
+    <div class="d-flex gap-2">
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary"><i class="bi bi-pencil"></i> Modifier</a>
+        }
+        else
+        {
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-pencil"></i> Modifier</button>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary">Retour</a>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@Model.Email</dd>
+            <dt class="col-sm-3">Secteur</dt><dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Sector) ? "-" : Model.Sector)</dd>
+            <dt class="col-sm-3">Statut</dt><dd class="col-sm-9">@Model.Status</dd>
+            <dt class="col-sm-3">Créé le</dt><dd class="col-sm-9">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</dd>
+        </dl>
+    </div>
+</div>
+
+<h2 class="h5 mb-3">Contrats associés (@Model.Contracts.Count)</h2>
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+            <tr><th>Titre</th><th>Montant</th><th>Période</th><th>Statut</th></tr>
+            </thead>
+            <tbody>
+            @if (!Model.Contracts.Any())
+            {
+                <tr><td colspan="4" class="text-center text-muted py-3">Aucun contrat.</td></tr>
+            }
+            @foreach (var ct in Model.Contracts)
+            {
+                <tr>
+                    <td><a asp-controller="Contract" asp-action="Details" asp-route-id="@ct.Id">@ct.Title</a></td>
+                    <td>@ct.Amount.ToString("N2") €</td>
+                    <td>@ct.StartDate.ToString("dd/MM/yyyy") → @ct.EndDate.ToString("dd/MM/yyyy")</td>
+                    <td><span class="badge @ContractBadge(ct.Status)">@ct.Status</span></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,96 @@
+@model PagedResult<Contract>
+@{
+    var search = ViewBag.Search as string;
+    var status = ViewBag.Status as ContractStatus?;
+
+    string ContractBadge(ContractStatus s) => s switch
+    {
+        ContractStatus.Active => "bg-success",
+        ContractStatus.Expired => "bg-secondary",
+        ContractStatus.Cancelled => "bg-danger",
+        ContractStatus.Draft => "bg-warning text-dark",
+        _ => "bg-light text-dark"
+    };
+}
+
+<p class="text-muted mb-2 small">@Model.TotalCount contrat@(Model.TotalCount > 1 ? "s" : "") trouvé@(Model.TotalCount > 1 ? "s" : "")</p>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Client</th>
+                <th class="text-end">Montant</th>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Statut</th>
+                <th class="text-end">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Items.Any())
+            {
+                <tr><td colspan="7"><div class="empty-state"><i class="bi bi-search"></i>Aucun contrat trouvé.</div></td></tr>
+            }
+            @foreach (var c in Model.Items)
+            {
+                <tr>
+                    <td class="fw-semibold">
+                        @c.Title
+                        @if (c.IsExpiringSoon)
+                        {
+                            <span class="badge bg-warning text-dark ms-1"><i class="bi bi-clock"></i> Expire bientôt</span>
+                        }
+                    </td>
+                    <td><a asp-controller="Client" asp-action="Details" asp-route-id="@c.ClientId">@c.Client?.Name</a></td>
+                    <td class="text-end">@c.Amount.ToString("N2") €</td>
+                    <td>@c.StartDate.ToString("dd/MM/yyyy")</td>
+                    <td>@c.EndDate.ToString("dd/MM/yyyy")</td>
+                    <td><span class="badge @ContractBadge(c.Status)">@c.Status</span></td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" title="Détails"
+                                data-panel-url="@Url.Action("Details", new { id = c.Id })" data-title="Détails du contrat"><i class="bi bi-eye"></i></button>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-primary" title="Modifier"
+                                    data-panel-url="@Url.Action("Edit", new { id = c.Id })" data-title="Modifier le contrat"><i class="bi bi-pencil"></i></button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer"
+                                    data-modal-url="@Url.Action("Delete", new { id = c.Id })" data-title=""><i class="bi bi-trash"></i></button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-primary" title="Modifier (admin)" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-pencil"></i></button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer (admin)" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-trash"></i></button>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber - 1)"
+                   asp-route-search="@search" asp-route-status="@status">Précédent</a>
+            </li>
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i"
+                       asp-route-search="@search" asp-route-status="@status">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber + 1)"
+                   asp-route-search="@search" asp-route-status="@status">Suivant</a>
+            </li>
+        </ul>
+    </nav>
+}
