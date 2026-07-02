@@ -1,4 +1,4 @@
-# Mini-CRM — Gestion clients & contrats
+# Mini-CRM - Gestion clients & contrats
 
 Application web **ASP.NET Core MVC (.NET 10)** de gestion de clients et de leurs
 contrats, avec authentification par rôles, tableau de bord, audit automatique des
