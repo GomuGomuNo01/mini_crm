@@ -1,0 +1,18 @@
+@page
+@model AccessDeniedModel
+@{
+    // Page affichée à un utilisateur connecté sans les droits suffisants :
+    // elle garde la navigation de l'application.
+    Layout = "/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Accès réservé";
+    ViewData["HidePageHead"] = true;
+}
+
+<div class="error-card" style="margin: var(--space-8) auto" data-reveal-group>
+    <div class="confirm__icon" data-tone="info" data-reveal><i class="bi bi-shield-lock" aria-hidden="true"></i></div>
+    <h1 class="page-head__title" data-reveal>Accès réservé</h1>
+    <p class="page-head__lead" data-reveal>Cette page est réservée aux administrateurs. Vous pouvez continuer à consulter les clients, les contrats et le tableau de bord.</p>
+    <div class="page-head__actions" data-reveal style="justify-content:center">
+        <a class="btn btn--primary" href="@Url.Action("Index", "Dashboard")"><i class="bi bi-arrow-left" aria-hidden="true"></i> Retour au tableau de bord</a>
+    </div>
+</div>

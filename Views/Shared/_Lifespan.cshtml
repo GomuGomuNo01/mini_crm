@@ -1,0 +1,28 @@
+@using System.Globalization
+@model Contract
+@*
+    Durée de vie d'un contrat : la piste va de la date de début à la date de fin,
+    le repère marque aujourd'hui. La légende dit la même chose en mots
+    (la barre est décorative pour les lecteurs d'écran).
+*@
+@{
+    var life = Ui.LifespanOf(Model);
+    var pct = life.Percent.ToString("0.#", CultureInfo.InvariantCulture);
+    var showDates = ViewData["ShowDates"] as bool? == true;
+}
+<div class="lifespan" data-tone="@life.Tone" style="--p: @(pct)%">
+    <div class="lifespan__track" aria-hidden="true">
+        <span class="lifespan__fill"></span>
+        @if (life.ShowNow)
+        {
+            <span class="lifespan__now"></span>
+        }
+    </div>
+    <div class="lifespan__meta">
+        <strong>@life.Caption</strong>
+        @if (showDates)
+        {
+            <span>@Ui.Date(Model.StartDate) → @Ui.Date(Model.EndDate)</span>
+        }
+    </div>
+</div>

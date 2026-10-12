@@ -1,165 +1,256 @@
 @using Microsoft.AspNetCore.Identity
-@inject SignInManager<MiniCrm.Models.ApplicationUser> SignInManager
-@inject UserManager<MiniCrm.Models.ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
-    bool IsActive(string c) => string.Equals(controller, c, StringComparison.OrdinalIgnoreCase);
     var isSignedIn = SignInManager.IsSignedIn(User);
-    var userName = UserManager.GetUserName(User);
-    var initials = string.IsNullOrEmpty(userName) ? "?" : userName.Substring(0, 1).ToUpper();
+    var isAdmin = User.IsInRole("Admin");
+    var userName = UserManager.GetUserName(User) ?? "";
+
+    var title = ViewData["Title"] as string ?? "Mini-CRM";
+    var eyebrow = ViewData["Eyebrow"] as string;
+    var lead = ViewData["Lead"] as string;
+    var hidePageHead = ViewData["HidePageHead"] as bool? == true;
+
+    // Navigation : une seule source pour le dock (desktop), le rail (tablette),
+    // la barre d'onglets et la feuille de menu (mobile).
+    var nav = new (string Controller, string Label, string Short, string Icon, string ActiveIcon, string Group, bool AdminOnly, bool InTabbar)[]
+    {
+        ("Dashboard", "Tableau de bord", "Accueil", "bi-grid-1x2", "bi-grid-1x2-fill", "Pilotage", false, true),
+        ("Client", "Clients", "Clients", "bi-people", "bi-people-fill", "Gestion", false, true),
+        ("Contract", "Contrats", "Contrats", "bi-file-earmark-text", "bi-file-earmark-text-fill", "Gestion", false, true),
+        ("User", "Utilisateurs", "Comptes", "bi-person-gear", "bi-person-fill-gear", "Administration", true, false),
+        ("Sector", "Secteurs", "Secteurs", "bi-tags", "bi-tags-fill", "Administration", true, false),
+        ("Audit", "Journal d'audit", "Audit", "bi-shield-check", "bi-shield-fill-check", "Administration", true, false),
+    }.Where(n => !n.AdminOnly || isAdmin).ToArray();
+
+    bool IsActive(string c) => string.Equals(controller, c, StringComparison.OrdinalIgnoreCase);
 }
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Mini-CRM</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <partial name="_Head" />
+    <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
 </head>
-<body>
-@if (isSignedIn)
+@if (!isSignedIn)
 {
-    <div class="app-shell">
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-brand">
-                <span class="brand-icon"><i class="bi bi-kanban"></i></span>
-                Mini-CRM
-            </div>
-
-            <div class="sidebar-section">Pilotage</div>
-            <nav class="sidebar-nav">
-                <a class="sidebar-link @(IsActive("Dashboard") ? "active" : "")" asp-controller="Dashboard" asp-action="Index">
-                    <i class="bi bi-grid-1x2"></i> Dashboard
-                </a>
-            </nav>
-
-            <div class="sidebar-section">Gestion</div>
-            <nav class="sidebar-nav">
-                <a class="sidebar-link @(IsActive("Client") ? "active" : "")" asp-controller="Client" asp-action="Index">
-                    <i class="bi bi-people"></i> Clients
-                </a>
-                <a class="sidebar-link @(IsActive("Contract") ? "active" : "")" asp-controller="Contract" asp-action="Index">
-                    <i class="bi bi-file-earmark-text"></i> Contrats
-                </a>
-            </nav>
-
-            @if (User.IsInRole("Admin"))
-            {
-                <div class="sidebar-section">Administration</div>
-                <nav class="sidebar-nav">
-                    <a class="sidebar-link @(IsActive("User") ? "active" : "")" asp-controller="User" asp-action="Index">
-                        <i class="bi bi-person-gear"></i> Utilisateurs
-                    </a>
-                    <a class="sidebar-link @(IsActive("Sector") ? "active" : "")" asp-controller="Sector" asp-action="Index">
-                        <i class="bi bi-tags"></i> Secteurs
-                    </a>
-                    <a class="sidebar-link @(IsActive("Audit") ? "active" : "")" asp-controller="Audit" asp-action="Index">
-                        <i class="bi bi-shield-lock"></i> Journal d'audit
-                    </a>
-                </nav>
-            }
-
-            <div class="sidebar-footer">
-                <div class="sidebar-user">
-                    <span class="avatar">@initials</span>
-                    <div class="text-truncate">
-                        <div class="text-truncate" style="color:#fff;font-size:.85rem;">@userName</div>
-                        <small>Connecté</small>
-                    </div>
-                </div>
-                <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home")" method="post">
-                    <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-right"></i> Déconnexion</button>
-                </form>
-            </div>
-        </aside>
-
-        <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
-
-        <div class="app-main">
-            <header class="topbar">
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-outline-secondary btn-icon sidebar-toggle" type="button" onclick="toggleSidebar()" aria-label="Menu">
-                        <i class="bi bi-list"></i>
-                    </button>
-                    <div>
-                        <h1>@(ViewData["Title"] ?? "Mini-CRM")</h1>
-                    </div>
-                </div>
-                <div class="d-none d-md-flex align-items-center gap-2 text-muted" style="font-size:.85rem;">
-                    <i class="bi bi-calendar3"></i> @DateTime.Now.ToString("dddd dd MMMM yyyy")
-                </div>
-            </header>
-
-            <main class="app-content">
-                @if (TempData["Success"] != null)
-                {
-                    <input type="hidden" id="flashSuccess" value="@TempData["Success"]" />
-                }
-                @RenderBody()
-            </main>
-        </div>
-
-        <!-- Modal : accès refusé (action réservée aux admins) -->
-        <div class="modal fade" id="accessDeniedModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content" style="border-radius: var(--radius); border: 1px solid var(--border);">
-                    <div class="modal-body text-center p-4">
-                        <div class="mx-auto mb-3 d-grid" style="width:56px;height:56px;border-radius:50%;background:#fee2e2;color:#b91c1c;place-items:center;font-size:1.6rem;">
-                            <i class="bi bi-shield-lock"></i>
-                        </div>
-                        <h5 class="fw-bold mb-1">Accès refusé</h5>
-                        <p class="text-muted mb-4" style="font-size:.9rem;">
-                            Cette action est réservée aux administrateurs.
-                        </p>
-                        <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">J'ai compris</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal CRUD centré (création / suppression), non fermable au clic extérieur -->
-        <div class="modal fade" id="crudModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content" style="border-radius: var(--radius); border: 1px solid var(--border);">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="crudModalTitle"></h5>
-                        <button type="button" class="btn-close" data-crud-close aria-label="Fermer"></button>
-                    </div>
-                    <div class="modal-body" id="crudModalBody"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Panneau latéral droit (détails lecture seule / édition) -->
-        <div class="offcanvas offcanvas-end crud-panel" tabindex="-1" id="crudPanel" aria-labelledby="crudPanelTitle">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="crudPanelTitle"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
-            </div>
-            <div class="offcanvas-body" id="crudPanelBody"></div>
-        </div>
-
-        <!-- Conteneur de notifications (toasts) en haut à droite -->
-        <div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer" style="z-index:1090;"></div>
+    @* Page applicative consultée sans session (ex. erreur) : coquille minimale. *@
+    if (IsSectionDefined("Actions")) { IgnoreSection("Actions"); }
+    <body class="is-public">
+    <div class="bare">
+        <a class="brand" href="~/"><partial name="_Brand" /></a>
+        <main id="contenu" class="bare__main page-enter">@RenderBody()</main>
     </div>
+    <div class="toaster" id="toaster" role="region" aria-label="Notifications"></div>
+    <script src="~/js/core.js" asp-append-version="true"></script>
+    <script src="~/js/app.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    </body>
 }
 else
 {
-    <div class="auth-wrapper">
-        <div class="auth-card">
-            @RenderBody()
-        </div>
-    </div>
-}
+    <body>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <div class="aurora" aria-hidden="true"></div>
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
-@await RenderSectionAsync("Scripts", required: false)
-</body>
+    <div class="shell">
+        @* ---------- Dock (≥ 768px : rail, ≥ 1024px : complet) ---------- *@
+        <aside class="dock" aria-label="Barre latérale">
+            <a class="brand dock__brand" asp-controller="Dashboard" asp-action="Index" aria-label="Mini-CRM, tableau de bord">
+                <partial name="_Brand" />
+            </a>
+
+            <nav class="dock__nav" aria-label="Navigation principale">
+                @foreach (var group in nav.GroupBy(n => n.Group))
+                {
+                    <div class="dock__group">
+                        <p class="dock__label">@group.Key</p>
+                        <ul role="list">
+                            @foreach (var item in group)
+                            {
+                                var active = IsActive(item.Controller);
+                                <li>
+                                    <a class="dock__link" href="@Url.Action("Index", item.Controller)"
+                                       aria-current="@(active ? "page" : null)" data-tip="@item.Label" data-tip-pos="right">
+                                        @if (active)
+                                        {
+                                            <span class="dock__indicator" aria-hidden="true"></span>
+                                        }
+                                        <i class="bi @(active ? item.ActiveIcon : item.Icon)" aria-hidden="true"></i>
+                                        <span class="dock__text">@item.Label</span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </nav>
+
+            <div class="dock__footer">
+                <div class="dock__user">
+                    <span class="avatar avatar--round" data-hue="@Ui.Hue(userName)" aria-hidden="true">@Ui.Initials(userName)</span>
+                    <div class="dock__who">
+                        <p class="dock__email truncate" title="@userName">@userName</p>
+                        <p class="dock__role">@(isAdmin ? "Administrateur" : "Lecture seule")</p>
+                    </div>
+                </div>
+                <div class="dock__tools">
+                    <button type="button" class="icon-btn theme-toggle" data-theme-toggle aria-label="Activer le thème sombre" data-tip="Changer de thème" data-tip-pos="right">
+                        <i class="bi bi-sun" aria-hidden="true"></i><i class="bi bi-moon-stars" aria-hidden="true"></i>
+                    </button>
+                    <form method="post" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home")">
+                        <button type="submit" class="icon-btn icon-btn--danger" aria-label="Se déconnecter" data-tip="Se déconnecter" data-tip-pos="right">
+                            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        @* ---------- Barre supérieure mobile (< 768px) ---------- *@
+        <header class="mobilebar">
+            <a class="brand" asp-controller="Dashboard" asp-action="Index" aria-label="Mini-CRM, tableau de bord"><partial name="_Brand" /></a>
+            <button type="button" class="icon-btn theme-toggle" data-theme-toggle aria-label="Activer le thème sombre">
+                <i class="bi bi-sun" aria-hidden="true"></i><i class="bi bi-moon-stars" aria-hidden="true"></i>
+            </button>
+        </header>
+
+        <main id="contenu" class="main page-enter" tabindex="-1">
+            @if (!hidePageHead)
+            {
+                <header class="page-head">
+                    <div class="page-head__text">
+                        @if (!string.IsNullOrEmpty(eyebrow))
+                        {
+                            <p class="eyebrow" data-reveal="fade">@eyebrow</p>
+                        }
+                        <h1 class="page-head__title" data-reveal style="--reveal-index:1">@title</h1>
+                        @if (!string.IsNullOrEmpty(lead))
+                        {
+                            <p class="page-head__lead" data-reveal style="--reveal-index:2">@lead</p>
+                        }
+                    </div>
+                    @if (IsSectionDefined("Actions"))
+                    {
+                        <div class="page-head__actions" data-reveal style="--reveal-index:3">@RenderSection("Actions")</div>
+                    }
+                </header>
+            }
+            else if (IsSectionDefined("Actions"))
+            {
+                IgnoreSection("Actions");
+            }
+            @if (TempData["Success"] is string flash)
+            {
+                <div hidden data-flash="success">@flash</div>
+            }
+            @RenderBody()
+        </main>
+
+        @* ---------- Barre d'onglets mobile ---------- *@
+        <nav class="tabbar" aria-label="Navigation rapide">
+            @foreach (var item in nav.Where(n => n.InTabbar))
+            {
+                var active = IsActive(item.Controller);
+                <a class="tabbar__link" href="@Url.Action("Index", item.Controller)" aria-current="@(active ? "page" : null)">
+                    <i class="bi @(active ? item.ActiveIcon : item.Icon)" aria-hidden="true"></i>
+                    <span>@item.Short</span>
+                </a>
+            }
+            <button type="button" class="tabbar__link" data-dialog-open="navSheet" aria-haspopup="dialog"
+                    aria-current="@(nav.Any(n => !n.InTabbar && IsActive(n.Controller)) ? "page" : null)">
+                <i class="bi bi-grid-3x3-gap" aria-hidden="true"></i>
+                <span>Menu</span>
+            </button>
+        </nav>
+    </div>
+
+    @* ---------- Feuille de menu (mobile) ---------- *@
+    <dialog class="dialog dialog--sheet" id="navSheet" aria-labelledby="navSheetTitle" data-dismissable>
+        <div class="dialog__panel">
+            <span class="dialog__grabber" aria-hidden="true"></span>
+            <div class="dialog__header">
+                <h2 class="dialog__title" id="navSheetTitle">Menu</h2>
+                <button type="button" class="icon-btn" data-dialog-close aria-label="Fermer le menu"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+            </div>
+            <div class="dialog__body">
+                <nav aria-label="Toutes les sections">
+                    @foreach (var group in nav.GroupBy(n => n.Group))
+                    {
+                        <p class="sheet-nav__label">@group.Key</p>
+                        <ul role="list" class="sheet-nav">
+                            @foreach (var item in group)
+                            {
+                                var active = IsActive(item.Controller);
+                                <li>
+                                    <a class="sheet-nav__link" href="@Url.Action("Index", item.Controller)" aria-current="@(active ? "page" : null)">
+                                        <i class="bi @(active ? item.ActiveIcon : item.Icon)" aria-hidden="true"></i>
+                                        <span>@item.Label</span>
+                                        <i class="bi bi-chevron-right sheet-nav__chev" aria-hidden="true"></i>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </nav>
+                <div class="sheet-account">
+                    <span class="avatar avatar--round" data-hue="@Ui.Hue(userName)" aria-hidden="true">@Ui.Initials(userName)</span>
+                    <div class="min-w-0">
+                        <p class="dock__email truncate">@userName</p>
+                        <p class="dock__role">@(isAdmin ? "Administrateur" : "Lecture seule")</p>
+                    </div>
+                </div>
+                <form method="post" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home")">
+                    <button type="submit" class="btn btn--block"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Se déconnecter</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
+    @* ---------- Accès refusé (action réservée aux administrateurs) ---------- *@
+    <dialog class="dialog dialog--modal" id="accessDenied" aria-labelledby="accessDeniedTitle" aria-describedby="accessDeniedText" data-dismissable>
+        <div class="dialog__panel">
+            <div class="dialog__body confirm-body">
+                <div class="confirm" data-tone="info">
+                    <div class="confirm__icon"><i class="bi bi-shield-lock" aria-hidden="true"></i></div>
+                    <h2 class="confirm__title" id="accessDeniedTitle">Accès réservé</h2>
+                    <p class="confirm__text" id="accessDeniedText">Cette action est réservée aux administrateurs. Vous pouvez consulter toutes les fiches, sans les modifier.</p>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn--primary" data-dialog-close autofocus>J'ai compris</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>
+
+    @* ---------- Modale CRUD (création, suppression) : ne se ferme pas au clic extérieur ---------- *@
+    <dialog class="dialog dialog--modal" id="crudModal" aria-labelledby="crudModalTitle">
+        <div class="dialog__panel">
+            <div class="dialog__header">
+                <h2 class="dialog__title" id="crudModalTitle"></h2>
+                <button type="button" class="icon-btn" data-dialog-close aria-label="Fermer"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+            </div>
+            <div class="dialog__body" id="crudModalBody"></div>
+        </div>
+    </dialog>
+
+    @* ---------- Tiroir latéral (fiche en lecture, édition) ---------- *@
+    <dialog class="dialog dialog--drawer" id="crudPanel" aria-labelledby="crudPanelTitle" data-dismissable>
+        <div class="dialog__panel">
+            <span class="dialog__grabber" aria-hidden="true"></span>
+            <div class="dialog__header">
+                <h2 class="dialog__title" id="crudPanelTitle"></h2>
+                <button type="button" class="icon-btn" data-dialog-close aria-label="Fermer le panneau"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+            </div>
+            <div class="dialog__body" id="crudPanelBody"></div>
+        </div>
+    </dialog>
+
+    <div class="toaster" id="toaster" role="region" aria-label="Notifications"></div>
+
+    <script src="~/js/core.js" asp-append-version="true"></script>
+    <script src="~/js/app.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    </body>
+}
 </html>

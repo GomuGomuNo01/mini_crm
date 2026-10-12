@@ -1,98 +1,256 @@
+@using System.Globalization
 @model DashboardViewModel
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Tableau de bord";
+    ViewData["HidePageHead"] = true;
+
+    var fr = CultureInfo.GetCultureInfo("fr-FR");
+    var inv = CultureInfo.InvariantCulture;
+    var isAdmin = User.IsInRole("Admin");
+    var who = (User.Identity?.Name ?? "").Split('@')[0];
+    var totalContracts = Model.ContractsByStatus.Values.Sum();
+    var activeUrl = Url.Action("Index", "Contract", new { status = "Active" });
+
+    // Segments de l'anneau (pathLength = 100), un léger interstice entre chaque.
+    var segments = new List<(string Key, Ui.Look Look, int Count, double Len, double Offset)>();
+    var offset = 0d;
+    foreach (var (key, count) in Model.ContractsByStatus)
+    {
+        if (count == 0 || totalContracts == 0) continue;
+        var len = count * 100d / totalContracts;
+        segments.Add((key, Ui.OfContractKey(key), count, len, offset));
+        offset += len;
+    }
+    var gap = segments.Count > 1 ? 0.9 : 0;
+    var donutLabel = "Contrats par statut : " + string.Join(", ",
+        Model.ContractsByStatus.Select(kv => $"{kv.Value} {Ui.OfContractKey(kv.Key).Label.ToLower(fr)}{(kv.Value > 1 ? "s" : "")}"));
 }
 
-<p class="text-muted mb-4" style="margin-top:-8px;">Vue d'ensemble de votre activité commerciale.</p>
+<header class="dash-head">
+    <div class="page-head__text">
+        <p class="eyebrow" data-reveal="fade">Tableau de bord · @DateTime.Now.ToString("dddd d MMMM", fr)</p>
+        <h1 class="dash-head__title" data-reveal style="--reveal-index:1">@Ui.Greeting(), <span class="accent">@who</span>.</h1>
+        <p class="page-head__lead" data-reveal style="--reveal-index:2">L'essentiel de votre activité commerciale, en un coup d'œil.</p>
+    </div>
+    <div class="page-head__actions" data-reveal style="--reveal-index:3">
+        @if (isAdmin)
+        {
+            <button type="button" class="btn" data-modal-url="@Url.Action("Create", "Client")" data-title="Nouveau client">
+                <i class="bi bi-person-plus" aria-hidden="true"></i> Ajouter un client
+            </button>
+            <button type="button" class="btn btn--primary" data-modal-url="@Url.Action("Create", "Contract")" data-title="Nouveau contrat">
+                <i class="bi bi-plus-lg" aria-hidden="true"></i> Créer un contrat
+            </button>
+        }
+        else
+        {
+            <a class="btn btn--primary" asp-controller="Contract" asp-action="Index">
+                Consulter les contrats <i class="bi bi-arrow-right btn__nudge" aria-hidden="true"></i>
+            </a>
+        }
+    </div>
+</header>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-3 col-6">
-        <div class="kpi-card">
-            <div class="kpi-icon indigo"><i class="bi bi-people"></i></div>
-            <div class="kpi-value">@Model.TotalActiveClients</div>
-            <div class="kpi-label">Clients actifs</div>
+@* ---------- Indicateurs clés ---------- *@
+<section class="kpis" aria-label="Indicateurs clés" data-reveal-group>
+    <a class="kpi kpi--feature spotlight" href="@activeUrl" data-reveal>
+        <div class="kpi__top">
+            <span class="kpi__icon"><i class="bi bi-cash-stack" aria-hidden="true"></i></span>
+            <i class="bi bi-arrow-up-right kpi__go" aria-hidden="true"></i>
         </div>
-    </div>
-    <div class="col-md-3 col-6">
-        <div class="kpi-card">
-            <div class="kpi-icon green"><i class="bi bi-file-earmark-check"></i></div>
-            <div class="kpi-value">@Model.TotalActiveContracts</div>
-            <div class="kpi-label">Contrats actifs</div>
+        <div>
+            <p class="kpi__value"><span data-countup="@Model.TotalContractValue.ToString("0", inv)" data-suffix=" €">@Ui.Money(Model.TotalContractValue)</span></p>
+            <p class="kpi__label">Valeur des contrats actifs</p>
+            <p class="kpi__hint">Répartie sur @Ui.Plural(Model.TotalActiveContracts, "contrat en cours", "contrats en cours")</p>
         </div>
-    </div>
-    <div class="col-md-3 col-6">
-        <div class="kpi-card">
-            <div class="kpi-icon amber"><i class="bi bi-clock-history"></i></div>
-            <div class="kpi-value">@Model.ContractsExpiringSoon</div>
-            <div class="kpi-label">Expirent &lt; 30 jours</div>
+    </a>
+
+    <a class="kpi spotlight panel--interactive" asp-controller="Client" asp-action="Index" data-reveal>
+        <div class="kpi__top">
+            <span class="kpi__icon" data-tone="info"><i class="bi bi-people" aria-hidden="true"></i></span>
+            <i class="bi bi-arrow-up-right kpi__go" aria-hidden="true"></i>
         </div>
-    </div>
-    <div class="col-md-3 col-6">
-        <div class="kpi-card">
-            <div class="kpi-icon slate"><i class="bi bi-cash-stack"></i></div>
-            <div class="kpi-value">@Model.TotalContractValue.ToString("N0") €</div>
-            <div class="kpi-label">Valeur (contrats actifs)</div>
+        <div>
+            <p class="kpi__value"><span data-countup="@Model.TotalActiveClients">@Model.TotalActiveClients</span></p>
+            <p class="kpi__label">Clients actifs</p>
+            <p class="kpi__hint">@(Model.ProspectClients > 0 ? $"+ {Ui.Plural(Model.ProspectClients, "prospect", "prospects")} à convertir" : "Aucun prospect en attente")</p>
         </div>
+    </a>
+
+    <a class="kpi spotlight panel--interactive" href="@activeUrl" data-reveal>
+        <div class="kpi__top">
+            <span class="kpi__icon" data-tone="success"><i class="bi bi-file-earmark-check" aria-hidden="true"></i></span>
+            <i class="bi bi-arrow-up-right kpi__go" aria-hidden="true"></i>
+        </div>
+        <div>
+            <p class="kpi__value"><span data-countup="@Model.TotalActiveContracts">@Model.TotalActiveContracts</span></p>
+            <p class="kpi__label">Contrats actifs</p>
+            <p class="kpi__hint">Sur @Ui.Plural(totalContracts, "contrat", "contrats") au total</p>
+        </div>
+    </a>
+
+    <a class="kpi spotlight panel--interactive" href="@activeUrl" data-reveal>
+        <div class="kpi__top">
+            <span class="kpi__icon" data-tone="@(Model.ContractsExpiringSoon > 0 ? "alert" : "neutral")"><i class="bi bi-alarm" aria-hidden="true"></i></span>
+            <i class="bi bi-arrow-up-right kpi__go" aria-hidden="true"></i>
+        </div>
+        <div>
+            <p class="kpi__value"><span data-countup="@Model.ContractsExpiringSoon">@Model.ContractsExpiringSoon</span></p>
+            <p class="kpi__label">Échéances sous 30 jours</p>
+            <p class="kpi__hint">@(Model.ContractsExpiringSoon > 0 ? "À renouveler en priorité" : "Rien d'urgent à signaler")</p>
+        </div>
+    </a>
+</section>
+
+@if (Model.OverdueActiveContracts > 0)
+{
+    <div class="callout dash-alert" data-tone="danger" data-reveal>
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+        <div class="callout__body">
+            <strong>@Ui.Plural(Model.OverdueActiveContracts, "contrat actif a dépassé sa", "contrats actifs ont dépassé leur") date de fin.</strong>
+            <span>Renouvelez-les ou passez-les en « Expiré » pour garder des indicateurs fiables.</span>
+        </div>
+        <a class="btn btn--sm callout__action" href="@activeUrl">Vérifier</a>
     </div>
+}
+
+<div class="dash-grid">
+    @* ---------- Échéances ---------- *@
+    <section class="panel" aria-labelledby="dueTitle" data-reveal>
+        <div class="panel__head">
+            <div>
+                <h2 class="panel__title" id="dueTitle"><i class="bi bi-alarm" style="color:var(--color-accent-ink)" aria-hidden="true"></i> Échéances à venir</h2>
+                <p class="panel__sub">Contrats actifs qui expirent dans les 30 prochains jours</p>
+            </div>
+            <a class="btn btn--ghost btn--sm" href="@activeUrl">Tout voir <i class="bi bi-arrow-right btn__nudge" aria-hidden="true"></i></a>
+        </div>
+        @if (!Model.ExpiringContracts.Any())
+        {
+            <div class="empty">
+                <div class="empty__icon" data-tone="success" style="background:var(--tone-bg);color:var(--tone-ink)"><i class="bi bi-calendar2-check" aria-hidden="true"></i></div>
+                <p class="empty__title">Aucune échéance proche</p>
+                <p class="empty__text">Aucun contrat actif n'expire dans les 30 prochains jours. Profitez-en pour prospecter.</p>
+            </div>
+        }
+        else
+        {
+            <ul class="due-list" role="list" data-reveal-group>
+                @foreach (var c in Model.ExpiringContracts)
+                {
+                    var days = Math.Max(0, Ui.DaysUntil(c.EndDate));
+                    <li class="due" data-reveal>
+                        <div class="due__count" data-tone="alert" aria-hidden="true">
+                            <span class="due__days">@days</span>
+                            <span class="due__unit">jour@(days > 1 ? "s" : "")</span>
+                        </div>
+                        <div class="due__main">
+                            <div class="cell-main__text">
+                                <button type="button" class="cell-link" data-panel-url="@Url.Action("Details", "Contract", new { id = c.Id })" data-title="Fiche contrat">@c.Title</button>
+                                <span class="cell-sub">@c.Client?.Name · fin le @Ui.Date(c.EndDate)</span>
+                            </div>
+                            <partial name="_Lifespan" model="c" />
+                        </div>
+                        <div class="due__end"><span class="amount">@Ui.Money(c.Amount)</span></div>
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+
+    @* ---------- Répartition ---------- *@
+    <section class="panel" aria-labelledby="splitTitle" data-reveal style="--reveal-index:1">
+        <div class="panel__head">
+            <div>
+                <h2 class="panel__title" id="splitTitle">Répartition des contrats</h2>
+                <p class="panel__sub">Par statut · survolez la légende pour isoler</p>
+            </div>
+        </div>
+        @if (totalContracts == 0)
+        {
+            <div class="empty">
+                <div class="empty__icon"><i class="bi bi-pie-chart" aria-hidden="true"></i></div>
+                <p class="empty__title">Pas encore de contrat</p>
+                <p class="empty__text">La répartition apparaîtra dès le premier contrat créé.</p>
+            </div>
+        }
+        else
+        {
+            <div class="donut-wrap">
+                <div class="donut" id="statusDonut" role="img" aria-label="@donutLabel">
+                    <svg viewBox="0 0 120 120" aria-hidden="true">
+                        <circle class="donut__track" cx="60" cy="60" r="48" fill="none" stroke-width="12" />
+                        @for (var i = 0; i < segments.Count; i++)
+                        {
+                            var s = segments[i];
+                            var len = Math.Max(s.Len - gap, 0.4).ToString("0.###", inv);
+                            <circle class="donut__seg" data-key="@s.Key" data-tone="@s.Look.Tone" cx="60" cy="60" r="48" fill="none"
+                                    stroke-width="12" pathLength="100"
+                                    style="--len: @len; --off: @s.Offset.ToString("0.###", inv); --i: @i" />
+                        }
+                    </svg>
+                    <div class="donut__center" aria-hidden="true">
+                        <span class="donut__total">@totalContracts</span>
+                        <span class="donut__caption">contrat@(totalContracts > 1 ? "s" : "")</span>
+                    </div>
+                </div>
+                <ul class="legend" role="list">
+                    @foreach (var (key, count) in Model.ContractsByStatus)
+                    {
+                        var look = Ui.OfContractKey(key);
+                        var pct = totalContracts == 0 ? 0 : Math.Round(count * 100d / totalContracts);
+                        <li>
+                            <a class="legend__item" href="@Url.Action("Index", "Contract", new { status = key })"
+                               data-donut="statusDonut" data-key="@key" data-tone="@look.Tone">
+                                <span class="legend__swatch" aria-hidden="true"></span>
+                                <span class="legend__label"><i class="bi @look.Icon" aria-hidden="true"></i> @(look.Label)s</span>
+                                <span class="legend__count">@count</span>
+                                <span class="legend__pct">@pct %</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </section>
 </div>
 
-<div class="row g-3">
-    <div class="col-lg-5">
-        <div class="card shadow-sm h-100">
-            <div class="card-header bg-white fw-semibold">Contrats par statut</div>
-            <div class="card-body d-flex align-items-center justify-content-center">
-                <canvas id="statusChart" style="max-height: 280px;"></canvas>
-            </div>
+@* ---------- Derniers contrats ---------- *@
+<section class="panel" style="margin-top:var(--space-4)" aria-labelledby="recentTitle" data-reveal>
+    <div class="panel__head">
+        <div>
+            <h2 class="panel__title" id="recentTitle">Derniers contrats</h2>
+            <p class="panel__sub">Les plus récents par date de début</p>
         </div>
+        <a class="btn btn--ghost btn--sm" asp-controller="Contract" asp-action="Index">Tous les contrats <i class="bi bi-arrow-right btn__nudge" aria-hidden="true"></i></a>
     </div>
-    <div class="col-lg-7">
-        <div class="card shadow-sm h-100">
-            <div class="card-header bg-white fw-semibold">
-                <i class="bi bi-exclamation-circle text-warning"></i> Contrats expirant bientôt (5 prochains)
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover mb-0 align-middle">
-                    <thead class="table-light">
-                    <tr><th>Titre</th><th>Client</th><th>Fin</th><th class="text-end">Montant</th></tr>
-                    </thead>
-                    <tbody>
-                    @if (!Model.ExpiringContracts.Any())
-                    {
-                        <tr><td colspan="4" class="text-center text-muted py-3">Aucun contrat n'expire prochainement.</td></tr>
-                    }
-                    @foreach (var c in Model.ExpiringContracts)
-                    {
-                        <tr>
-                            <td><a asp-controller="Contract" asp-action="Details" asp-route-id="@c.Id">@c.Title</a></td>
-                            <td>@c.Client?.Name</td>
-                            <td><span class="badge bg-warning text-dark">@c.EndDate.ToString("dd/MM/yyyy")</span></td>
-                            <td class="text-end">@c.Amount.ToString("N2") €</td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
-            </div>
+    @if (!Model.RecentContracts.Any())
+    {
+        <div class="empty">
+            <div class="empty__icon"><i class="bi bi-file-earmark-plus" aria-hidden="true"></i></div>
+            <p class="empty__title">Aucun contrat pour l'instant</p>
+            <p class="empty__text">Créez un premier contrat pour suivre sa durée de vie ici.</p>
         </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-    <script>
-        const statusData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ContractsByStatus));
-        new Chart(document.getElementById('statusChart'), {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(statusData),
-                datasets: [{
-                    data: Object.values(statusData),
-                    backgroundColor: ['#198754', '#6c757d', '#dc3545', '#ffc107']
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { position: 'bottom' } }
+    }
+    else
+    {
+        <ul class="mini-list" role="list" data-reveal-group>
+            @foreach (var c in Model.RecentContracts)
+            {
+                var look = Ui.Of(c.Status);
+                var clientName = c.Client?.Name ?? "Client inconnu";
+                <li class="mini-row" data-reveal>
+                    <span class="avatar" data-hue="@Ui.Hue(clientName)" aria-hidden="true">@Ui.Initials(clientName)</span>
+                    <div class="cell-main__text">
+                        <button type="button" class="cell-link" data-panel-url="@Url.Action("Details", "Contract", new { id = c.Id })" data-title="Fiche contrat">@c.Title</button>
+                        <span class="cell-sub">@clientName</span>
+                    </div>
+                    <div class="mini-row__life"><partial name="_Lifespan" model="c" /></div>
+                    <div class="mini-row__end">
+                        <span class="amount">@Ui.Money(c.Amount)</span>
+                        <span class="status" data-tone="@look.Tone"><i class="bi @look.Icon" aria-hidden="true"></i>@look.Label</span>
+                    </div>
+                </li>
             }
-        });
-    </script>
-}
+        </ul>
+    }
+</section>

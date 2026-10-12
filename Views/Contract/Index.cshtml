@@ -1,46 +1,64 @@
 @model PagedResult<Contract>
 @{
     ViewData["Title"] = "Contrats";
+    ViewData["Eyebrow"] = "Gestion";
+    ViewData["Lead"] = "Montants, périodes et statuts : suivez la vie de chaque contrat jusqu'à son échéance.";
     var search = ViewBag.Search as string;
     var status = ViewBag.Status as ContractStatus?;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <p class="text-muted mb-0">Gestion des contrats</p>
-    <div class="d-flex gap-2">
-        <a id="exportCsvLink" asp-action="ExportCsv" asp-route-search="@search" asp-route-status="@status" class="btn btn-outline-secondary">
-            <i class="bi bi-download"></i> Exporter CSV
-        </a>
-        @if (User.IsInRole("Admin"))
-        {
-            <button type="button" class="btn btn-primary" data-modal-url="@Url.Action("Create")" data-title="Nouveau contrat"><i class="bi bi-plus-lg"></i> Nouveau contrat</button>
-        }
-        else
-        {
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-plus-lg"></i> Nouveau contrat</button>
-        }
-    </div>
-</div>
+@section Actions {
+    <a id="exportCsvLink" class="btn" asp-action="ExportCsv" asp-route-search="@search" asp-route-status="@status">
+        <i class="bi bi-download" aria-hidden="true"></i> Exporter en CSV
+    </a>
+    @if (User.IsInRole("Admin"))
+    {
+        <button type="button" class="btn btn--primary" data-modal-url="@Url.Action("Create")" data-title="Nouveau contrat">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i> Créer un contrat
+        </button>
+    }
+    else
+    {
+        <button type="button" class="btn btn--primary" data-dialog-open="accessDenied">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i> Créer un contrat
+        </button>
+    }
+}
 
-<form class="row g-2 mb-3" data-live-filter data-target="#contractTableContainer" data-url="@Url.Action("Index")"
-      data-export-url="@Url.Action("ExportCsv")" data-export-target="#exportCsvLink" onsubmit="return false;">
-    <div class="col-md-6">
-        <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input type="text" name="search" value="@search" class="form-control" data-filter autocomplete="off"
-                   placeholder="Rechercher par titre ou client..." />
-        </div>
+<form class="toolbar" role="search" data-live-filter data-target="#contractTable" data-url="@Url.Action("Index")"
+      data-export-url="@Url.Action("ExportCsv")" data-export-target="#exportCsvLink"
+      data-reveal style="--reveal-index:3">
+    <div class="search">
+        <label class="visually-hidden" for="contractSearch">Rechercher un contrat</label>
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input id="contractSearch" type="search" name="search" value="@search" class="input" autocomplete="off"
+               placeholder="Rechercher par titre ou client…" data-search-shortcut />
+        <span class="search__end">
+            <button type="button" class="search__clear" data-search-clear aria-label="Effacer la recherche"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+            <kbd class="kbd" title="Raccourci clavier">/</kbd>
+        </span>
     </div>
-    <div class="col-md-4">
-        <select name="status" class="form-select" data-filter asp-items="Html.GetEnumSelectList<ContractStatus>()">
-            <option value="">-- Tous les statuts --</option>
-        </select>
-    </div>
-    <div class="col-md-2 d-grid">
-        <a asp-action="Index" class="btn btn-outline-secondary" data-reset><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</a>
-    </div>
+    <fieldset class="filter-chips">
+        <legend class="visually-hidden">Filtrer par statut</legend>
+        <label class="filter-chip">
+            <input type="radio" name="status" value="" checked="@(status == null)" />
+            <span>Tous</span>
+        </label>
+        @foreach (var s in Enum.GetValues<ContractStatus>())
+        {
+            var look = Ui.Of(s);
+            <label class="filter-chip">
+                <input type="radio" name="status" value="@s" checked="@(status == s)" />
+                <span><i class="bi @look.Icon" aria-hidden="true"></i>@(look.Label)s</span>
+            </label>
+        }
+    </fieldset>
 </form>
+<p class="visually-hidden" aria-live="polite" data-live-count></p>
 
-<div id="contractTableContainer">
-    <partial name="_ContractTable" model="Model" />
+<div class="results" data-busy-host data-reveal style="--reveal-index:4">
+    <div class="loadbar" aria-hidden="true"></div>
+    <div id="contractTable">
+        <partial name="_ContractTable" model="Model" />
+    </div>
 </div>

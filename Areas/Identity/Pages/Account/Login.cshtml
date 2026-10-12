@@ -5,39 +5,120 @@
     ViewData["Title"] = "Connexion";
 }
 
-<h1 class="mb-1">Connexion</h1>
-<p class="text-muted mb-4" style="font-size:.9rem;">Accédez à votre espace.</p>
+<div class="auth">
+    <div class="auth__panel">
+        <div class="public-aurora" aria-hidden="true"><span></span><span></span></div>
 
-<form id="account" method="post">
-    <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
-    <div asp-validation-summary="ModelOnly" class="alert alert-warning py-2 px-3 mb-3" style="display:@(ViewData.ModelState.ErrorCount > 0 ? "block" : "none")"></div>
+        <header class="auth__top">
+            <a class="brand" href="~/" aria-label="Mini-CRM, accueil"><partial name="_Brand" /></a>
+            <div class="site-header__actions">
+                <button type="button" class="icon-btn theme-toggle" data-theme-toggle aria-label="Activer le thème sombre">
+                    <i class="bi bi-sun" aria-hidden="true"></i><i class="bi bi-moon-stars" aria-hidden="true"></i>
+                </button>
+                <a class="btn btn--ghost btn--sm" href="~/"><i class="bi bi-arrow-left" aria-hidden="true"></i> Accueil</a>
+            </div>
+        </header>
 
-    <div class="form-floating mb-3">
-        <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="Email" />
-        <label asp-for="Input.Email">Email</label>
-        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+        <main id="contenu" class="auth__main" tabindex="-1">
+            <div class="auth__form" data-reveal-group>
+                <div data-reveal>
+                    <h1 class="auth__title">Bon retour <span class="accent">parmi nous.</span></h1>
+                    <p class="auth__lead">Connectez-vous pour retrouver vos clients, vos contrats et leurs échéances.</p>
+                </div>
+
+                <form id="account" method="post" class="form-grid" novalidate data-reveal>
+                    <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+                    <div asp-validation-summary="ModelOnly" class="callout" data-tone="danger"></div>
+
+                    <div class="field">
+                        <label class="field__label" asp-for="Input.Email">Email</label>
+                        <div class="field__control">
+                            <i class="bi bi-envelope field__icon" aria-hidden="true"></i>
+                            <input asp-for="Input.Email" class="input" autocomplete="username" placeholder="vous@entreprise.fr" autofocus />
+                            <span class="field__state" aria-hidden="true"></span>
+                        </div>
+                        <span asp-validation-for="Input.Email" class="field__error"></span>
+                    </div>
+
+                    <div class="field field--password">
+                        <label class="field__label" asp-for="Input.Password">Mot de passe</label>
+                        <div class="field__control">
+                            <i class="bi bi-key field__icon" aria-hidden="true"></i>
+                            <input asp-for="Input.Password" class="input" type="password" autocomplete="current-password" placeholder="Votre mot de passe" />
+                            <span class="field__state" aria-hidden="true"></span>
+                            <button type="button" class="reveal-pass" data-reveal-pass aria-label="Afficher le mot de passe" aria-pressed="false">
+                                <i class="bi bi-eye" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Input.Password" class="field__error"></span>
+                    </div>
+
+                    <div class="auth__row">
+                        <label class="check">
+                            <input asp-for="Input.RememberMe" />
+                            Se souvenir de moi
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn--primary btn--lg btn--block" data-loading>
+                        Se connecter <i class="bi bi-arrow-right btn__nudge" aria-hidden="true"></i>
+                    </button>
+                </form>
+
+                @if (Env.IsDevelopment())
+                {
+                    <div class="demo-accounts" data-reveal>
+                        <p class="demo-accounts__title"><i class="bi bi-magic" aria-hidden="true"></i> Comptes de démonstration</p>
+                        <div class="demo-accounts__list">
+                            <button type="button" class="btn btn--sm" data-fill-login data-email="admin@minicrm.dev" data-password="Admin@1234">
+                                <i class="bi bi-shield-check" aria-hidden="true"></i> Administrateur
+                            </button>
+                            <button type="button" class="btn btn--sm" data-fill-login data-email="user@minicrm.dev" data-password="User@1234">
+                                <i class="bi bi-eye" aria-hidden="true"></i> Lecture seule
+                            </button>
+                        </div>
+                        <p>Visible uniquement en environnement de développement.</p>
+                    </div>
+                }
+
+                <p class="auth__foot" data-reveal="fade">Pas encore d'accès ? Votre administrateur crée les comptes depuis Mini-CRM.</p>
+            </div>
+        </main>
     </div>
-    <div class="form-floating has-toggle mb-3">
-        <input asp-for="Input.Password" class="form-control" type="password" autocomplete="current-password" placeholder="Mot de passe" />
-        <label asp-for="Input.Password">Mot de passe</label>
-        <button type="button" class="password-toggle" tabindex="-1" aria-label="Afficher le mot de passe"><i class="bi bi-eye"></i></button>
-        <span asp-validation-for="Input.Password" class="text-danger small"></span>
-    </div>
-    <div class="form-check mb-3">
-        <input asp-for="Input.RememberMe" class="form-check-input" />
-        <label asp-for="Input.RememberMe" class="form-check-label">Se souvenir de moi</label>
-    </div>
 
-    <button type="submit" class="btn btn-primary w-100">Se connecter</button>
-</form>
+    <aside class="auth__aside" aria-hidden="true">
+        <div class="auth__art" data-parallax>
+            <div class="orbits"></div>
+            <p class="auth__quote" data-reveal>Chaque contrat a une date de fin. <span class="accent">Mini-CRM ne l'oublie jamais.</span></p>
 
-@if (Env.IsDevelopment())
-{
-    <div class="alert mt-4 mb-0" style="background:#f8fafc;border:1px dashed var(--border-strong);font-size:.8rem;color:var(--text-muted);">
-        <strong>Démo :</strong> admin@minicrm.dev / Admin@1234
-    </div>
-}
+            <div class="auth__cards">
+                <div class="float-pos" data-depth="0.5">
+                    <div class="float" data-reveal style="--reveal-index:2">
+                        <span class="float__icon" data-tone="info"><i class="bi bi-cash-stack"></i></span>
+                        <div><p class="mock__title">80 800 €</p><p class="mock__sub">Valeur des contrats actifs</p></div>
+                    </div>
+                </div>
+                <div class="float-pos" data-depth="1">
+                    <div class="float" data-reveal style="--reveal-index:3">
+                        <div class="due__count" data-tone="alert"><span class="due__days">12</span><span class="due__unit">jours</span></div>
+                        <div><p class="mock__title">Maintenance site web</p><p class="mock__sub">TechNova SARL · à renouveler</p></div>
+                    </div>
+                </div>
+                <div class="float-pos" data-depth="0.75">
+                    <div class="float float--stack" data-reveal style="--reveal-index:4">
+                        <p class="mock__sub"><strong>admin</strong> a modifié <strong>Studio Pixel</strong></p>
+                        <div class="diff__values" style="font-size:var(--text-xs)">
+                            <span class="diff__old">Prospect</span><i class="bi bi-arrow-right diff__arrow"></i><span class="diff__new">Actif</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+            <ul class="auth__points" role="list" data-reveal-group>
+                <li data-reveal><i class="bi bi-alarm"></i> Échéances repérées 30 jours à l'avance</li>
+                <li data-reveal><i class="bi bi-shield-check"></i> Chaque modification tracée automatiquement</li>
+                <li data-reveal><i class="bi bi-lightning-charge"></i> Recherche et édition instantanées</li>
+            </ul>
+        </div>
+    </aside>
+</div>

@@ -1,29 +1,44 @@
 @model PagedResult<Client>
 @{
     ViewData["Title"] = "Clients";
+    ViewData["Eyebrow"] = "Gestion";
+    ViewData["Lead"] = "Votre portefeuille : coordonnées, secteur d'activité et contrats de chaque client.";
     var search = ViewBag.Search as string;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <p class="text-muted mb-0">Gestion des clients</p>
+@section Actions {
     @if (User.IsInRole("Admin"))
     {
-        <button type="button" class="btn btn-primary" data-modal-url="@Url.Action("Create")" data-title="Nouveau client"><i class="bi bi-plus-lg"></i> Nouveau client</button>
+        <button type="button" class="btn btn--primary" data-modal-url="@Url.Action("Create")" data-title="Nouveau client">
+            <i class="bi bi-person-plus" aria-hidden="true"></i> Ajouter un client
+        </button>
     }
     else
     {
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#accessDeniedModal"><i class="bi bi-plus-lg"></i> Nouveau client</button>
+        <button type="button" class="btn btn--primary" data-dialog-open="accessDenied">
+            <i class="bi bi-person-plus" aria-hidden="true"></i> Ajouter un client
+        </button>
     }
-</div>
+}
 
-<form class="mb-3" data-live-filter data-target="#clientTableContainer" data-url="@Url.Action("Index")" onsubmit="return false;">
-    <div class="input-group">
-        <span class="input-group-text"><i class="bi bi-search"></i></span>
-        <input type="text" name="search" value="@search" class="form-control" data-filter autocomplete="off"
-               placeholder="Rechercher par nom, email ou secteur..." />
+<form class="toolbar" role="search" data-live-filter data-target="#clientTable" data-url="@Url.Action("Index")"
+      data-reveal style="--reveal-index:3">
+    <div class="search">
+        <label class="visually-hidden" for="clientSearch">Rechercher un client</label>
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input id="clientSearch" type="search" name="search" value="@search" class="input" autocomplete="off"
+               placeholder="Rechercher par nom, email ou secteur…" data-search-shortcut />
+        <span class="search__end">
+            <button type="button" class="search__clear" data-search-clear aria-label="Effacer la recherche"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+            <kbd class="kbd" title="Raccourci clavier">/</kbd>
+        </span>
     </div>
 </form>
+<p class="visually-hidden" aria-live="polite" data-live-count></p>
 
-<div id="clientTableContainer">
-    <partial name="_ClientTable" model="Model" />
+<div class="results" data-busy-host data-reveal style="--reveal-index:4">
+    <div class="loadbar" aria-hidden="true"></div>
+    <div id="clientTable">
+        <partial name="_ClientTable" model="Model" />
+    </div>
 </div>

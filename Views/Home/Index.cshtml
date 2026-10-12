@@ -1,0 +1,450 @@
+@{
+    Layout = "_PublicLayout";
+    ViewData["Description"] = "Mini-CRM réunit vos clients, vos contrats et leurs échéances dans un espace clair, avec un journal d'audit automatique.";
+
+    var loginUrl = Url.Page("/Account/Login", new { area = "Identity" });
+    var today = DateTime.Today;
+
+    // Données de démonstration (reprises du jeu d'essai), calculées par rapport à aujourd'hui :
+    // la démo utilise exactement la même logique d'échéance que l'application.
+    Contract Demo(string title, string client, decimal amount, DateTime start, DateTime end, ContractStatus status) =>
+        new() { Title = title, Amount = amount, StartDate = start, EndDate = end, Status = status, Client = new Client { Name = client } };
+
+    var demo = new[]
+    {
+        Demo("Maintenance site web", "TechNova SARL", 2400m, today.AddMonths(-11).AddDays(12), today.AddDays(12), ContractStatus.Active),
+        Demo("Licence logicielle", "Boulangerie Martin", 12000m, today.AddMonths(-2), today.AddMonths(10), ContractStatus.Active),
+        Demo("Contrat support annuel", "Cabinet Dupont & Associés", 5600m, today.AddMonths(-12).AddDays(20), today.AddDays(20), ContractStatus.Active),
+        Demo("Contrat de transport", "Transports Rapides", 15000m, today.AddMonths(-4), today.AddMonths(8), ContractStatus.Active),
+        Demo("Offre hébergement premium", "Fleuriste Les Lilas", 5400m, today, today.AddMonths(12), ContractStatus.Draft),
+        Demo("Saison hôtelière 2024", "Hôtel Belle Vue", 9800m, today.AddMonths(-15), today.AddMonths(-3), ContractStatus.Expired),
+    };
+
+    string Tags(Contract c) => string.Join(' ', new[]
+    {
+        c.Status == ContractStatus.Active ? "active" : null,
+        c.IsExpiringSoon ? "soon" : null,
+        c.Status == ContractStatus.Draft ? "draft" : null,
+        c.Status == ContractStatus.Expired ? "expired" : null
+    }.Where(t => t != null));
+
+    var storyEarly = new Contract { Title = "Refonte identité visuelle", Amount = 6200m, StartDate = today.AddMonths(-2), EndDate = today.AddMonths(9), Status = ContractStatus.Active };
+    var storyLate = new Contract { Title = "Refonte identité visuelle", Amount = 6200m, StartDate = today.AddMonths(-11).AddDays(12), EndDate = today.AddDays(12), Status = ContractStatus.Active };
+}
+
+<header class="site-header">
+    <div class="container site-header__inner">
+        <a class="brand" href="~/" aria-label="Mini-CRM, accueil"><partial name="_Brand" /></a>
+        <nav class="site-nav" aria-label="Sections de la page">
+            <a href="#benefices">Pourquoi</a>
+            <a href="#parcours">Comment ça marche</a>
+            <a href="#fonctionnalites">Fonctionnalités</a>
+            <a href="#demo">Démo</a>
+            <a href="#faq">FAQ</a>
+        </nav>
+        <div class="site-header__actions">
+            <button type="button" class="icon-btn theme-toggle" data-theme-toggle aria-label="Activer le thème sombre">
+                <i class="bi bi-sun" aria-hidden="true"></i><i class="bi bi-moon-stars" aria-hidden="true"></i>
+            </button>
+            <a class="btn btn--primary btn--sm site-header__login" href="@loginUrl">Se connecter</a>
+            <button type="button" class="icon-btn site-menu-btn" data-dialog-open="siteMenu" aria-haspopup="dialog" aria-label="Ouvrir le menu">
+                <i class="bi bi-list" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+<dialog class="dialog dialog--sheet" id="siteMenu" aria-labelledby="siteMenuTitle" data-dismissable>
+    <div class="dialog__panel">
+        <span class="dialog__grabber" aria-hidden="true"></span>
+        <div class="dialog__header">
+            <h2 class="dialog__title" id="siteMenuTitle">Menu</h2>
+            <button type="button" class="icon-btn" data-dialog-close aria-label="Fermer le menu"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+        </div>
+        <div class="dialog__body">
+            <nav class="site-sheet-links" aria-label="Sections de la page">
+                <a href="#benefices">Pourquoi Mini-CRM <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                <a href="#parcours">Comment ça marche <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                <a href="#fonctionnalites">Fonctionnalités <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                <a href="#demo">Démo interactive <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                <a href="#faq">Questions fréquentes <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+            </nav>
+            <a class="btn btn--primary btn--lg btn--block" href="@loginUrl">Accéder à mon espace <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </div>
+    </div>
+</dialog>
+
+<main id="contenu" tabindex="-1" style="position:relative">
+    <div class="public-aurora" aria-hidden="true"><span></span><span></span><span></span></div>
+
+    @* ================= HERO ================= *@
+    <section class="hero" aria-labelledby="heroTitle">
+        <div class="container hero__grid">
+            <div>
+                <p class="hero__badge" data-reveal="fade">
+                    <span class="hero__badge-tag">Nouveau</span> Journal d'audit automatique
+                </p>
+                <h1 class="hero__title" id="heroTitle" data-reveal style="--reveal-index:1">
+                    Vos clients. Vos contrats. <span class="accent">Sous contrôle.</span>
+                </h1>
+                <p class="hero__lead" data-reveal style="--reveal-index:2">
+                    Mini-CRM réunit votre portefeuille, vos contrats et leurs échéances dans un espace limpide,
+                    et garde la trace de chaque modification, sans effort.
+                </p>
+                <div class="hero__ctas" data-reveal style="--reveal-index:3">
+                    <a class="btn btn--primary btn--lg" href="@loginUrl" data-magnetic>
+                        Accéder à mon espace <i class="bi bi-arrow-right btn__nudge" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn--lg" href="#parcours">Découvrir le produit</a>
+                </div>
+                <p class="hero__note" data-reveal="fade" style="--reveal-index:4">
+                    <i class="bi bi-shield-lock" aria-hidden="true"></i> Accès sur invitation : les comptes sont créés par un administrateur.
+                </p>
+            </div>
+
+            <div class="stage" data-parallax role="img"
+                 aria-label="Aperçu de Mini-CRM : la valeur des contrats actifs, une échéance dans 12 jours et une modification consignée au journal d'audit.">
+                <div class="orbits" aria-hidden="true"></div>
+                <div data-depth="0.35" aria-hidden="true">
+                    <div class="mock" data-reveal="scale" style="--reveal-index:3">
+                        <div class="mock__bar"><i></i><i></i><i></i><span>Tableau de bord</span></div>
+                        <div class="mock__body">
+                            <div class="mock__kpis">
+                                <div class="mock__kpi mock__kpi--feature"><span>Valeur active</span><strong>80 800 €</strong></div>
+                                <div class="mock__kpi"><span>Clients actifs</span><strong>9</strong></div>
+                                <div class="mock__kpi"><span>Contrats</span><strong>13</strong></div>
+                            </div>
+                            @foreach (var c in demo.Take(3))
+                            {
+                                <div class="mock__row">
+                                    <span class="avatar" data-hue="@Ui.Hue(c.Client.Name)">@Ui.Initials(c.Client.Name)</span>
+                                    <div class="min-w-0">
+                                        <p class="mock__title truncate">@c.Title</p>
+                                        <partial name="_Lifespan" model="c" />
+                                    </div>
+                                    <span class="amount">@Ui.Money(c.Amount)</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="float-pos float-pos--due" data-depth="1" aria-hidden="true">
+                    <div class="float" data-reveal style="--reveal-index:5">
+                        <div class="due__count" data-tone="alert"><span class="due__days">12</span><span class="due__unit">jours</span></div>
+                        <div class="min-w-0">
+                            <p class="mock__title">Maintenance site web</p>
+                            <p class="mock__sub">TechNova SARL · à renouveler</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="float-pos float-pos--audit" data-depth="0.7" aria-hidden="true">
+                    <div class="float float--stack" data-reveal style="--reveal-index:6">
+                        <div class="sl-row" style="justify-content:flex-start">
+                            <span class="float__icon" data-tone="info"><i class="bi bi-pencil"></i></span>
+                            <p class="mock__sub"><strong>admin</strong> a modifié <strong>Studio Pixel</strong></p>
+                        </div>
+                        <div class="diff__values" style="font-size:var(--text-xs)">
+                            <span class="diff__old">Prospect</span><i class="bi bi-arrow-right diff__arrow"></i><span class="diff__new">Actif</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    @* ================= PREUVES (faits réels du projet) ================= *@
+    <section class="proof" aria-label="Le produit en chiffres">
+        <ul class="container proof__list" role="list" data-reveal-group>
+            <li class="proof__item" data-reveal="fade"><span class="proof__num">52</span> tests unitaires automatisés</li>
+            <li class="proof__item" data-reveal="fade"><i class="bi bi-shield-check" aria-hidden="true"></i> Audit champ par champ, sans code</li>
+            <li class="proof__item" data-reveal="fade"><i class="bi bi-lock" aria-hidden="true"></i> Anti-CSRF et anti-force brute</li>
+            <li class="proof__item" data-reveal="fade"><i class="bi bi-filetype-csv" aria-hidden="true"></i> Export CSV sécurisé</li>
+        </ul>
+    </section>
+
+    @* ================= BÉNÉFICES ================= *@
+    <section class="section" id="benefices" aria-labelledby="benefitsTitle">
+        <div class="container">
+            <div class="section-head">
+                <p class="eyebrow" data-reveal="fade">Pourquoi Mini-CRM</p>
+                <h2 id="benefitsTitle" data-reveal style="--reveal-index:1">Moins de tableurs, <span class="accent">plus de visibilité.</span></h2>
+                <p class="section-lead" data-reveal style="--reveal-index:2">Trois promesses simples, tenues au quotidien par le produit.</p>
+            </div>
+            <div class="benefits" data-reveal-group>
+                <article class="panel panel--interactive spotlight benefit" data-reveal>
+                    <span class="benefit__index">01</span>
+                    <span class="benefit__icon" data-tone="alert"><i class="bi bi-alarm" aria-hidden="true"></i></span>
+                    <h3>Anticipez les échéances</h3>
+                    <p>Les contrats qui expirent sous 30 jours remontent d'eux-mêmes sur le tableau de bord. Plus de renouvellement oublié.</p>
+                </article>
+                <article class="panel panel--interactive spotlight benefit" data-reveal>
+                    <span class="benefit__index">02</span>
+                    <span class="benefit__icon" data-tone="info"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
+                    <h3>Tracez tout, sans y penser</h3>
+                    <p>Chaque création, modification ou suppression est consignée avec son auteur, l'heure et le détail « avant → après ».</p>
+                </article>
+                <article class="panel panel--interactive spotlight benefit" data-reveal>
+                    <span class="benefit__index">03</span>
+                    <span class="benefit__icon" data-tone="success"><i class="bi bi-lightning-charge" aria-hidden="true"></i></span>
+                    <h3>Travaillez sans friction</h3>
+                    <p>Recherche instantanée, édition sur place, export CSV : tout se fait sans quitter la page ni attendre un rechargement.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    @* ================= RÉCIT AU SCROLL ================= *@
+    <section class="section section--tint" id="parcours" aria-labelledby="storyTitle">
+        <div class="container">
+            <div class="section-head">
+                <p class="eyebrow" data-reveal="fade">Comment ça marche</p>
+                <h2 id="storyTitle" data-reveal style="--reveal-index:1">Du premier contact <span class="accent">au renouvellement.</span></h2>
+                <p class="section-lead" data-reveal style="--reveal-index:2">Suivez la vie d'un client dans Mini-CRM : faites défiler, le visuel évolue avec vous.</p>
+            </div>
+
+            <div class="story" data-story>
+                <div class="story__visual">
+                    <div class="story-stage" aria-hidden="true">
+                        <div class="sl sl-card sl-client">
+                            <div class="sl-row">
+                                <div class="cell-main">
+                                    <span class="avatar" data-hue="@Ui.Hue("Studio Pixel")">SP</span>
+                                    <div class="cell-main__text">
+                                        <span class="cell-title">Studio Pixel</span>
+                                        <span class="cell-sub">studio@pixel.design · Communication</span>
+                                    </div>
+                                </div>
+                                <span class="status is-before" data-tone="info"><i class="bi bi-stars"></i>Prospect</span>
+                                <span class="status is-after" data-tone="success"><i class="bi bi-check2-circle"></i>Actif</span>
+                            </div>
+                        </div>
+                        <div class="sl sl-card sl-contract">
+                            <div class="sl-row">
+                                <div class="cell-main__text">
+                                    <span class="cell-title">Refonte identité visuelle</span>
+                                    <span class="cell-sub">Studio Pixel · contrat annuel</span>
+                                </div>
+                                <span class="amount">6 200 €</span>
+                            </div>
+                            <div class="is-early"><partial name="_Lifespan" model="storyEarly" /></div>
+                            <div class="is-late"><partial name="_Lifespan" model="storyLate" /></div>
+                        </div>
+                        <div class="sl sl-card sl-due">
+                            <div class="sl-row" style="justify-content:flex-start">
+                                <div class="due__count" data-tone="alert" style="width:48px;height:48px;border-radius:15px"><span class="due__days" style="font-size:1.35rem">1</span><span class="due__unit">alerte</span></div>
+                                <div class="cell-main__text">
+                                    <span class="cell-title">Tableau de bord · Échéances à venir</span>
+                                    <span class="cell-sub">Le contrat remonte automatiquement, 30 jours avant sa fin.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sl sl-card sl-audit">
+                            <div class="sl-row" style="justify-content:flex-start">
+                                <span class="float__icon" data-tone="info"><i class="bi bi-pencil"></i></span>
+                                <p class="cell-sub" style="white-space:normal"><strong>admin@minicrm.dev</strong> a modifié le client <strong>Studio Pixel</strong> · 14:32</p>
+                            </div>
+                            <div class="diff__row">
+                                <span class="diff__field">Statut</span>
+                                <span class="diff__values"><span class="diff__old">Prospect</span><i class="bi bi-arrow-right diff__arrow"></i><span class="diff__new">Actif</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <ol class="story__steps" role="list">
+                    <li class="story__step" data-step="1">
+                        <div class="story__card">
+                            <span class="story__num">1</span>
+                            <h3>Ajoutez un client</h3>
+                            <p>Nom, email, secteur choisi dans le catalogue (ou créé à la volée) et statut : prospect, actif ou inactif.</p>
+                        </div>
+                    </li>
+                    <li class="story__step" data-step="2">
+                        <div class="story__card">
+                            <span class="story__num">2</span>
+                            <h3>Rattachez un contrat</h3>
+                            <p>Montant, dates de début et de fin, statut. La durée de vie du contrat s'affiche aussitôt, avec le repère « aujourd'hui ».</p>
+                        </div>
+                    </li>
+                    <li class="story__step" data-step="3">
+                        <div class="story__card">
+                            <span class="story__num">3</span>
+                            <h3>Voyez venir l'échéance</h3>
+                            <p>À 30 jours de la fin, le contrat passe en alerte et remonte sur le tableau de bord. Vous avez le temps de renouveler.</p>
+                        </div>
+                    </li>
+                    <li class="story__step" data-step="4">
+                        <div class="story__card">
+                            <span class="story__num">4</span>
+                            <h3>Gardez la trace</h3>
+                            <p>Le prospect devient client : le changement est consigné avec son auteur, l'heure et le détail « avant → après ».</p>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    @* ================= FONCTIONNALITÉS ================= *@
+    <section class="section" id="fonctionnalites" aria-labelledby="featuresTitle">
+        <div class="container">
+            <div class="section-head section-head--center">
+                <p class="eyebrow" data-reveal="fade">Fonctionnalités</p>
+                <h2 id="featuresTitle" data-reveal style="--reveal-index:1">Tout l'essentiel, <span class="accent">rien de superflu.</span></h2>
+                <p class="section-lead" data-reveal style="--reveal-index:2">Un périmètre volontairement resserré, pensé pour être compris en quelques minutes.</p>
+            </div>
+            <div class="features" data-reveal-group>
+                <article class="panel panel--interactive spotlight feature" data-reveal>
+                    <span class="feature__icon"><i class="bi bi-people" aria-hidden="true"></i></span>
+                    <h3>Clients</h3>
+                    <p>Fiche complète, secteur, statut et contrats associés. Recherche instantanée par nom, email ou secteur.</p>
+                </article>
+                <article class="panel panel--interactive spotlight feature" data-reveal>
+                    <span class="feature__icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
+                    <h3>Contrats</h3>
+                    <p>Montants, périodes et statuts, filtres combinables et durée de vie visible d'un coup d'œil.</p>
+                </article>
+                <article class="panel panel--interactive spotlight feature" data-reveal>
+                    <span class="feature__icon"><i class="bi bi-grid-1x2" aria-hidden="true"></i></span>
+                    <h3>Tableau de bord</h3>
+                    <p>Indicateurs clés, répartition par statut, prochaines échéances et contrats à régulariser.</p>
+                </article>
+                <article class="panel panel--interactive spotlight feature" data-reveal>
+                    <span class="feature__icon"><i class="bi bi-tags" aria-hidden="true"></i></span>
+                    <h3>Secteurs</h3>
+                    <p>Un catalogue tenu par l'administrateur. Un renommage se propage à tous les clients concernés.</p>
+                </article>
+                <article class="panel panel--interactive spotlight feature" data-reveal>
+                    <span class="feature__icon"><i class="bi bi-person-gear" aria-hidden="true"></i></span>
+                    <h3>Rôles et accès</h3>
+                    <p>Administrateurs et utilisateurs en lecture seule. Aucune inscription publique : chaque accès est ouvert à la main.</p>
+                </article>
+                <article class="panel panel--interactive spotlight feature" data-reveal>
+                    <span class="feature__icon"><i class="bi bi-filetype-csv" aria-hidden="true"></i></span>
+                    <h3>Export CSV</h3>
+                    <p>Exportez la liste filtrée en un clic, avec des cellules neutralisées contre l'injection de formules.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    @* ================= DÉMO INTERACTIVE ================= *@
+    <section class="section section--tint" id="demo" aria-labelledby="demoTitle">
+        <div class="container">
+            <div class="section-head">
+                <p class="eyebrow" data-reveal="fade">Démo interactive</p>
+                <h2 id="demoTitle" data-reveal style="--reveal-index:1">Essayez le filtre, <span class="accent">ici même.</span></h2>
+                <p class="section-lead" data-reveal style="--reveal-index:2">Un aperçu du module Contrats avec des données d'exemple. Filtrez : la liste se réorganise comme dans l'application.</p>
+            </div>
+
+            <div class="panel demo" data-demo data-reveal>
+                <div class="demo__bar">
+                    <fieldset class="filter-chips">
+                        <legend class="visually-hidden">Filtrer les contrats d'exemple</legend>
+                        <label class="filter-chip"><input type="radio" name="demo-filter" value="all" checked /><span>Tous</span></label>
+                        <label class="filter-chip"><input type="radio" name="demo-filter" value="active" /><span><i class="bi bi-check2-circle" aria-hidden="true"></i>Actifs</span></label>
+                        <label class="filter-chip"><input type="radio" name="demo-filter" value="soon" /><span><i class="bi bi-alarm" aria-hidden="true"></i>Expirent bientôt</span></label>
+                        <label class="filter-chip"><input type="radio" name="demo-filter" value="draft" /><span><i class="bi bi-pencil" aria-hidden="true"></i>Brouillons</span></label>
+                        <label class="filter-chip"><input type="radio" name="demo-filter" value="expired" /><span><i class="bi bi-hourglass-bottom" aria-hidden="true"></i>Expirés</span></label>
+                    </fieldset>
+                    <p class="demo__count" data-demo-count aria-live="polite"><strong>@demo.Length</strong> contrats</p>
+                </div>
+                <ul class="demo__list" role="list">
+                    @foreach (var c in demo)
+                    {
+                        var look = Ui.Of(c.Status);
+                        <li class="demo__item" data-demo-item data-tags="@Tags(c)">
+                            <span class="avatar" data-hue="@Ui.Hue(c.Client.Name)" aria-hidden="true">@Ui.Initials(c.Client.Name)</span>
+                            <div class="cell-main__text">
+                                <span class="cell-title">@c.Title</span>
+                                <span class="cell-sub">@c.Client.Name</span>
+                            </div>
+                            <div class="demo__life"><partial name="_Lifespan" model="c" /></div>
+                            <div class="demo__end">
+                                <span class="amount">@Ui.Money(c.Amount)</span>
+                                <span class="status" data-tone="@look.Tone"><i class="bi @look.Icon" aria-hidden="true"></i>@look.Label</span>
+                            </div>
+                        </li>
+                    }
+                </ul>
+                <p class="demo__empty" data-demo-empty hidden>Aucun contrat dans cette catégorie.</p>
+            </div>
+            <p class="demo__note"><i class="bi bi-info-circle" aria-hidden="true"></i> Données fictives, dates calculées par rapport à aujourd'hui.</p>
+        </div>
+    </section>
+
+    @* ================= FAQ ================= *@
+    <section class="section" id="faq" aria-labelledby="faqTitle">
+        <div class="container">
+            <div class="section-head section-head--center">
+                <p class="eyebrow" data-reveal="fade">FAQ</p>
+                <h2 id="faqTitle" data-reveal style="--reveal-index:1">Questions <span class="accent">fréquentes.</span></h2>
+            </div>
+            <div class="faq" data-reveal-group>
+                <details class="faq__item" data-reveal>
+                    <summary>Qui peut créer ou modifier des données ?<span class="faq__toggle" aria-hidden="true"><i class="bi bi-plus-lg"></i></span></summary>
+                    <p class="faq__answer">Les administrateurs. Les utilisateurs disposent d'un accès en lecture seule : ils consultent clients, contrats et tableau de bord, sans rien pouvoir modifier.</p>
+                </details>
+                <details class="faq__item" data-reveal>
+                    <summary>Comment fonctionne le journal d'audit ?<span class="faq__toggle" aria-hidden="true"><i class="bi bi-plus-lg"></i></span></summary>
+                    <p class="faq__answer">Il s'accroche à chaque enregistrement en base : toute création, modification ou suppression d'un client, d'un contrat ou d'un secteur est consignée automatiquement, avec l'auteur, l'heure et chaque champ modifié.</p>
+                </details>
+                <details class="faq__item" data-reveal>
+                    <summary>Puis-je exporter mes contrats ?<span class="faq__toggle" aria-hidden="true"><i class="bi bi-plus-lg"></i></span></summary>
+                    <p class="faq__answer">Oui, en CSV, en respectant la recherche et le filtre de statut en cours. Les cellules sont neutralisées contre l'injection de formules (Excel, Google Sheets).</p>
+                </details>
+                <details class="faq__item" data-reveal>
+                    <summary>Comment obtenir un accès ?<span class="faq__toggle" aria-hidden="true"><i class="bi bi-plus-lg"></i></span></summary>
+                    <p class="faq__answer">Il n'y a pas d'inscription publique : un administrateur crée votre compte et choisit votre niveau d'accès.</p>
+                </details>
+                <details class="faq__item" data-reveal>
+                    <summary>Mes données sont-elles protégées ?<span class="faq__toggle" aria-hidden="true"><i class="bi bi-plus-lg"></i></span></summary>
+                    <p class="faq__answer">Mots de passe hachés, jeton anti-CSRF sur chaque formulaire, verrouillage du compte après 5 échecs de connexion et en-têtes HTTP de sécurité.</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    @* ================= APPEL FINAL ================= *@
+    <section class="container" aria-labelledby="finalTitle">
+        <div class="final" data-reveal="scale">
+            <div class="orbits" aria-hidden="true"></div>
+            <h2 id="finalTitle">Reprenez la main sur <span class="accent">vos échéances.</span></h2>
+            <p>Connectez-vous : votre tableau de bord vous attend, à jour.</p>
+            <div class="final__ctas">
+                <a class="btn btn--light btn--lg" href="@loginUrl" data-magnetic>Accéder à mon espace <i class="bi bi-arrow-right btn__nudge" aria-hidden="true"></i></a>
+                <a class="btn btn--outline-light btn--lg" href="#parcours">Revoir le parcours</a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        <div class="site-footer__grid">
+            <div>
+                <a class="brand" href="~/" aria-label="Mini-CRM, accueil"><partial name="_Brand" /></a>
+                <p style="margin-top:var(--space-3);max-width:32em">Clients, contrats et échéances réunis dans un espace clair, avec un journal d'audit automatique.</p>
+            </div>
+            <div>
+                <h3>Produit</h3>
+                <ul role="list">
+                    <li><a href="#fonctionnalites">Fonctionnalités</a></li>
+                    <li><a href="#parcours">Comment ça marche</a></li>
+                    <li><a href="#demo">Démo</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3>Accès</h3>
+                <ul role="list">
+                    <li><a href="@loginUrl">Se connecter</a></li>
+                    <li><a href="#faq">Questions fréquentes</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="site-footer__bottom">
+            <span>© @DateTime.Now.Year Mini-CRM · Projet de Cédric Kouadio</span>
+            <span>ASP.NET Core · .NET 10 · MySQL</span>
+        </div>
+    </div>
+</footer>

@@ -1,26 +1,35 @@
 @model PagedResult<MiniCrm.Models.Sector>
 @{
     ViewData["Title"] = "Secteurs";
+    ViewData["Eyebrow"] = "Administration";
+    ViewData["Lead"] = "Le catalogue d'activités proposé dans les fiches clients. Un renommage se propage à tous les clients concernés.";
     var search = ViewBag.Search as string;
 }
 
-<div class="mx-auto" style="max-width: 720px;">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <p class="text-muted mb-0">Catalogue des secteurs d'activité</p>
-        <button type="button" class="btn btn-primary" data-modal-url="@Url.Action("Create")" data-title="Nouveau secteur">
-            <i class="bi bi-plus-lg"></i> Nouveau secteur
-        </button>
+@section Actions {
+    <button type="button" class="btn btn--primary" data-modal-url="@Url.Action("Create")" data-title="Nouveau secteur">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i> Ajouter un secteur
+    </button>
+}
+
+<form class="toolbar" role="search" data-live-filter data-target="#sectorTable" data-url="@Url.Action("Index")"
+      data-reveal style="--reveal-index:3">
+    <div class="search" style="max-width:520px">
+        <label class="visually-hidden" for="sectorSearch">Rechercher un secteur</label>
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input id="sectorSearch" type="search" name="search" value="@search" class="input" autocomplete="off"
+               placeholder="Rechercher un secteur…" data-search-shortcut />
+        <span class="search__end">
+            <button type="button" class="search__clear" data-search-clear aria-label="Effacer la recherche"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+            <kbd class="kbd" title="Raccourci clavier">/</kbd>
+        </span>
     </div>
+</form>
+<p class="visually-hidden" aria-live="polite" data-live-count></p>
 
-    <form class="mb-3" data-live-filter data-target="#sectorTableContainer" data-url="@Url.Action("Index")" onsubmit="return false;">
-        <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input type="text" name="search" value="@search" class="form-control" data-filter autocomplete="off"
-                   placeholder="Rechercher un secteur..." />
-        </div>
-    </form>
-
-    <div id="sectorTableContainer">
+<div class="results" data-busy-host data-reveal style="--reveal-index:4">
+    <div class="loadbar" aria-hidden="true"></div>
+    <div id="sectorTable">
         <partial name="_SectorTable" model="Model" />
     </div>
 </div>

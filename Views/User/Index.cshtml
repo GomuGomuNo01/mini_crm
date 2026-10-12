@@ -1,18 +1,23 @@
 @model List<MiniCrm.ViewModels.UserListItem>
 @{
     ViewData["Title"] = "Utilisateurs";
+    ViewData["Eyebrow"] = "Administration";
+    ViewData["Lead"] = "Pas d'inscription publique : c'est ici que vous ouvrez un accès, en lecture seule ou administrateur.";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <p class="text-muted mb-0">Gestion des comptes</p>
-    <button type="button" class="btn btn-primary" data-modal-url="@Url.Action("Create")" data-title="Nouvel utilisateur">
-        <i class="bi bi-person-plus"></i> Nouvel utilisateur
+@section Actions {
+    <button type="button" class="btn btn--primary" data-modal-url="@Url.Action("Create")" data-title="Nouvel utilisateur">
+        <i class="bi bi-person-plus" aria-hidden="true"></i> Créer un accès
     </button>
-</div>
+}
 
-@* Conteneur rechargeable après une action CRUD *@
-<div data-live-filter data-target="#userTableContainer" data-url="@Url.Action("Index")" style="display:none"></div>
+@* Rechargement de la liste après une action CRUD *@
+<div data-live-filter data-target="#userList" data-url="@Url.Action("Index")" hidden></div>
+<p class="visually-hidden" aria-live="polite" data-live-count></p>
 
-<div id="userTableContainer">
-    <partial name="_UserTable" model="Model" />
+<div class="results" data-busy-host data-reveal style="--reveal-index:3">
+    <div class="loadbar" aria-hidden="true"></div>
+    <div id="userList">
+        <partial name="_UserTable" model="Model" />
+    </div>
 </div>

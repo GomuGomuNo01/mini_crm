@@ -2,61 +2,98 @@
 @{
     var isEdit = Model.Id != 0;
     var action = isEdit ? "Edit" : "Create";
+    var standalone = ViewData["Standalone"] as bool? == true;
 }
 
-<form asp-action="@action" asp-route-id="@(isEdit ? (int?)Model.Id : null)" method="post" data-ajax-form>
-    <div asp-validation-summary="ModelOnly" class="alert alert-warning py-2 px-3 mb-3"
-         style="display:@(ViewData.ModelState.ErrorCount > 0 ? "block" : "none")"></div>
+<form asp-action="@action" asp-route-id="@(isEdit ? (int?)Model.Id : null)" method="post" class="form-grid"
+      data-ajax-form="@(standalone ? null : "")" novalidate>
+    <div asp-validation-summary="ModelOnly" class="callout" data-tone="danger"></div>
     @if (isEdit)
     {
         <input type="hidden" asp-for="Id" />
     }
 
-    <div class="form-floating mb-3">
-        <input asp-for="Title" class="form-control" placeholder="Titre" />
-        <label asp-for="Title"></label>
-        <span asp-validation-for="Title" class="text-danger small"></span>
+    <div class="field">
+        <label class="field__label" asp-for="Title">Titre du contrat <span class="field__req">Obligatoire</span></label>
+        <div class="field__control">
+            <i class="bi bi-file-earmark-text field__icon" aria-hidden="true"></i>
+            <input asp-for="Title" class="input" placeholder="Ex. Maintenance site web" autocomplete="off" />
+            <span class="field__state" aria-hidden="true"></span>
+        </div>
+        <span asp-validation-for="Title" class="field__error"></span>
     </div>
 
-    <div class="form-floating mb-3">
-        <select asp-for="ClientId" asp-items="ViewBag.Clients" class="form-select">
-            <option value="">-- Choisir un client --</option>
-        </select>
-        <label asp-for="ClientId"></label>
-        <span asp-validation-for="ClientId" class="text-danger small"></span>
-    </div>
+    <div class="form-row form-row--2">
+        <div class="field">
+            <label class="field__label" asp-for="ClientId">Client <span class="field__req">Obligatoire</span></label>
+            <div class="field__control">
+                <i class="bi bi-person field__icon" aria-hidden="true"></i>
+                <select asp-for="ClientId" asp-items="ViewBag.Clients" class="select">
+                    <option value="">Choisir un client…</option>
+                </select>
+            </div>
+            <span asp-validation-for="ClientId" class="field__error"></span>
+        </div>
 
-    <div class="row">
-        <div class="col-md-4">
-            <div class="form-floating mb-3">
-                <input asp-for="Amount" class="form-control" placeholder="Montant" />
-                <label asp-for="Amount">Montant (€)</label>
-                <span asp-validation-for="Amount" class="text-danger small"></span>
+        <div class="field field--amount">
+            <label class="field__label" asp-for="Amount">Montant <span class="field__req">en euros</span></label>
+            <div class="field__control">
+                <i class="bi bi-cash-stack field__icon" aria-hidden="true"></i>
+                <input asp-for="Amount" class="input num" inputmode="decimal" placeholder="Ex. 2400" />
+                <span class="field__state" aria-hidden="true"></span>
+                <span class="amount-suffix" aria-hidden="true">€</span>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="form-floating mb-3">
-                <input asp-for="StartDate" class="form-control" type="date" placeholder="Date de début" />
-                <label asp-for="StartDate"></label>
-                <span asp-validation-for="StartDate" class="text-danger small"></span>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="form-floating mb-3">
-                <input asp-for="EndDate" class="form-control" type="date" placeholder="Date de fin" />
-                <label asp-for="EndDate"></label>
-                <span asp-validation-for="EndDate" class="text-danger small"></span>
-            </div>
+            <span asp-validation-for="Amount" class="field__error"></span>
         </div>
     </div>
 
-    <div class="form-floating mb-3">
-        <select asp-for="Status" asp-items="Html.GetEnumSelectList<ContractStatus>()" class="form-select"></select>
-        <label asp-for="Status"></label>
+    <div class="field">
+        <div class="form-row form-row--2">
+            <div class="field">
+                <label class="field__label" asp-for="StartDate">Date de début</label>
+                <div class="field__control">
+                    <input asp-for="StartDate" class="input" type="date" />
+                </div>
+                <span asp-validation-for="StartDate" class="field__error"></span>
+            </div>
+            <div class="field">
+                <label class="field__label" asp-for="EndDate">Date de fin</label>
+                <div class="field__control">
+                    <input asp-for="EndDate" class="input" type="date" />
+                </div>
+                <span asp-validation-for="EndDate" class="field__error"></span>
+            </div>
+        </div>
+        <p class="duration-hint" data-duration aria-live="polite" hidden>
+            <i class="bi bi-hourglass-split" aria-hidden="true"></i><span></span>
+        </p>
     </div>
 
-    <div class="d-flex gap-2 mt-2">
-        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Enregistrer</button>
-        <button type="button" class="btn btn-outline-secondary" data-crud-close>Annuler</button>
+    <fieldset class="field">
+        <legend class="field__label">Statut</legend>
+        <div class="segmented">
+            @foreach (var s in Enum.GetValues<ContractStatus>())
+            {
+                var look = Ui.Of(s);
+                <label data-tone="@look.Tone">
+                    <input type="radio" asp-for="Status" value="@s" id="ContractStatus_@s" />
+                    <span><i class="bi @look.Icon" aria-hidden="true"></i>@look.Label</span>
+                </label>
+            }
+        </div>
+    </fieldset>
+
+    <div class="form-actions">
+        @if (standalone)
+        {
+            <a asp-action="Index" class="btn btn--ghost">Annuler</a>
+        }
+        else
+        {
+            <button type="button" class="btn btn--ghost" data-dialog-close>Annuler</button>
+        }
+        <button type="submit" class="btn btn--primary" data-loading>
+            <i class="bi bi-check-lg" aria-hidden="true"></i> @(isEdit ? "Enregistrer les modifications" : "Créer le contrat")
+        </button>
     </div>
 </form>

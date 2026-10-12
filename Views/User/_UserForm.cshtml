@@ -1,33 +1,73 @@
 @model MiniCrm.ViewModels.CreateUserViewModel
+@{
+    var standalone = ViewData["Standalone"] as bool? == true;
+}
 
-<form asp-action="Create" method="post" data-ajax-form>
-    <div asp-validation-summary="ModelOnly" class="alert alert-warning py-2 px-3 mb-3"
-         style="display:@(ViewData.ModelState.ErrorCount > 0 ? "block" : "none")"></div>
+<form asp-action="Create" method="post" class="form-grid" data-ajax-form="@(standalone ? null : "")" novalidate>
+    <div asp-validation-summary="ModelOnly" class="callout" data-tone="danger"></div>
 
-    <div class="form-floating mb-3">
-        <input asp-for="Email" class="form-control" autocomplete="off" placeholder="Email" />
-        <label asp-for="Email">Email</label>
-        <span asp-validation-for="Email" class="text-danger small"></span>
+    <div class="field">
+        <label class="field__label" asp-for="Email">Email <span class="field__req">Identifiant de connexion</span></label>
+        <div class="field__control">
+            <i class="bi bi-envelope field__icon" aria-hidden="true"></i>
+            <input asp-for="Email" class="input" autocomplete="off" placeholder="prenom.nom@entreprise.fr" />
+            <span class="field__state" aria-hidden="true"></span>
+        </div>
+        <span asp-validation-for="Email" class="field__error"></span>
     </div>
 
-    <div class="form-floating has-toggle mb-3">
-        <input asp-for="Password" class="form-control" type="password" autocomplete="new-password" placeholder="Mot de passe" />
-        <label asp-for="Password">Mot de passe</label>
-        <button type="button" class="password-toggle" tabindex="-1" aria-label="Afficher le mot de passe"><i class="bi bi-eye"></i></button>
-        <span asp-validation-for="Password" class="text-danger small"></span>
+    <div class="field field--password">
+        <label class="field__label" asp-for="Password">Mot de passe provisoire</label>
+        <div class="field__control">
+            <i class="bi bi-key field__icon" aria-hidden="true"></i>
+            <input asp-for="Password" class="input" type="password" autocomplete="new-password" placeholder="8 caractères minimum"
+                   data-password-input="pwdRules" aria-describedby="pwdRules" />
+            <span class="field__state" aria-hidden="true"></span>
+            <button type="button" class="reveal-pass" data-reveal-pass aria-label="Afficher le mot de passe" aria-pressed="false">
+                <i class="bi bi-eye" aria-hidden="true"></i>
+            </button>
+        </div>
+        <ul class="reqs" id="pwdRules" role="list" aria-label="Exigences du mot de passe">
+            <li data-rule="length">8 caractères</li>
+            <li data-rule="upper">1 majuscule</li>
+            <li data-rule="lower">1 minuscule</li>
+            <li data-rule="digit">1 chiffre</li>
+        </ul>
+        <span asp-validation-for="Password" class="field__error"></span>
     </div>
 
-    <div class="form-floating mb-3">
-        <select asp-for="Role" class="form-select">
-            <option value="User">Utilisateur (lecture seule)</option>
-            <option value="Admin">Administrateur</option>
-        </select>
-        <label asp-for="Role">Rôle</label>
-        <span asp-validation-for="Role" class="text-danger small"></span>
-    </div>
+    <fieldset class="field">
+        <legend class="field__label">Niveau d'accès</legend>
+        <div class="choices choices--2">
+            <label class="choice">
+                <input type="radio" asp-for="Role" value="User" id="Role_User" />
+                <span class="choice__card">
+                    <i class="bi bi-eye" aria-hidden="true"></i>
+                    <span class="choice__title">Utilisateur</span>
+                    <span class="choice__text">Consulte clients, contrats et tableau de bord.</span>
+                </span>
+            </label>
+            <label class="choice">
+                <input type="radio" asp-for="Role" value="Admin" id="Role_Admin" />
+                <span class="choice__card">
+                    <i class="bi bi-shield-check" aria-hidden="true"></i>
+                    <span class="choice__title">Administrateur</span>
+                    <span class="choice__text">Crée, modifie, supprime et gère les accès.</span>
+                </span>
+            </label>
+        </div>
+        <span asp-validation-for="Role" class="field__error"></span>
+    </fieldset>
 
-    <div class="d-flex gap-2 mt-2">
-        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Créer l'utilisateur</button>
-        <button type="button" class="btn btn-outline-secondary" data-crud-close>Annuler</button>
+    <div class="form-actions">
+        @if (standalone)
+        {
+            <a asp-action="Index" class="btn btn--ghost">Annuler</a>
+        }
+        else
+        {
+            <button type="button" class="btn btn--ghost" data-dialog-close>Annuler</button>
+        }
+        <button type="submit" class="btn btn--primary" data-loading><i class="bi bi-check-lg" aria-hidden="true"></i> Créer l'accès</button>
     </div>
 </form>

@@ -5,8 +5,15 @@ namespace MiniCrm.Controllers;
 
 public class HomeController : Controller
 {
-    // La page d'accueil redirige vers le dashboard (protégé par auth).
-    public IActionResult Index() => RedirectToAction("Index", "Dashboard");
+    // Accueil : la vitrine pour un visiteur, le tableau de bord pour un utilisateur connecté.
+    [AllowAnonymous]
+    public IActionResult Index()
+    {
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirectToAction("Index", "Dashboard");
+
+        return View();
+    }
 
     [AllowAnonymous]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

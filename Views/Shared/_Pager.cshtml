@@ -1,0 +1,36 @@
+@model PagerModel
+@{
+    var hasPrev = Model.Page > 1;
+    var hasNext = Model.Page < Model.TotalPages;
+}
+<nav class="pager" aria-label="Pagination">
+    <p class="pager__info">Page <strong>@Model.Page</strong> sur @Model.TotalPages</p>
+    <ul class="pager__list" role="list">
+        <li>
+            <a class="pager__link" href="@(hasPrev ? Model.UrlFor(Model.Page - 1) : null)" data-page
+               aria-disabled="@(hasPrev ? null : "true")" aria-label="Page précédente">
+                <i class="bi bi-chevron-left" aria-hidden="true"></i>
+            </a>
+        </li>
+        @foreach (var p in Model.Window())
+        {
+            if (p is null)
+            {
+                <li class="pager__gap" aria-hidden="true">…</li>
+            }
+            else
+            {
+                <li>
+                    <a class="pager__link pager__num" href="@Model.UrlFor(p.Value)" data-page
+                       aria-current="@(p == Model.Page ? "page" : null)" aria-label="Page @p">@p</a>
+                </li>
+            }
+        }
+        <li>
+            <a class="pager__link" href="@(hasNext ? Model.UrlFor(Model.Page + 1) : null)" data-page
+               aria-disabled="@(hasNext ? null : "true")" aria-label="Page suivante">
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</nav>

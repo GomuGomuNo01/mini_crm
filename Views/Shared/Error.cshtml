@@ -1,6 +1,16 @@
 @{
     ViewData["Title"] = "Erreur";
+    ViewData["HidePageHead"] = true;
+    var signedIn = User.Identity?.IsAuthenticated == true;
 }
 
-<h1 class="text-danger">Une erreur est survenue.</h1>
-<h2 class="text-danger">Désolé, le traitement de votre requête a échoué.</h2>
+<div class="error-card" style="margin: var(--space-8) auto" data-reveal-group>
+    <p class="error-card__code accent" data-reveal>Oups.</p>
+    <h1 class="page-head__title" data-reveal>Une erreur est survenue</h1>
+    <p class="page-head__lead" data-reveal>Le traitement de votre demande a échoué. Rien n'a été perdu : réessayez dans un instant.</p>
+    <div class="page-head__actions" data-reveal style="justify-content:center">
+        <a class="btn btn--primary" href="@(signedIn ? Url.Action("Index", "Dashboard") : Url.Content("~/"))">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i> @(signedIn ? "Retour au tableau de bord" : "Retour à l'accueil")
+        </a>
+    </div>
+</div>

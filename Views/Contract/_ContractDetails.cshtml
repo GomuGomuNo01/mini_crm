@@ -1,42 +1,67 @@
 @model Contract
 @{
-    string ContractBadge(ContractStatus s) => s switch
-    {
-        ContractStatus.Active => "bg-success",
-        ContractStatus.Expired => "bg-secondary",
-        ContractStatus.Cancelled => "bg-danger",
-        ContractStatus.Draft => "bg-warning text-dark",
-        _ => "bg-light text-dark"
-    };
+    var look = Ui.Of(Model.Status);
+    var life = Ui.LifespanOf(Model);
+    var isAdmin = User.IsInRole("Admin");
+    var clientName = Model.Client?.Name ?? "Client inconnu";
+    var months = Math.Max(1, (int)Math.Round((Model.EndDate - Model.StartDate).TotalDays / 30.44));
 }
 
-<div class="detail-header">
-    <div class="detail-avatar"><i class="bi bi-file-earmark-text"></i></div>
+<div class="profile">
+    <span class="profile__icon" data-tone="@look.Tone" aria-hidden="true"><i class="bi bi-file-earmark-text"></i></span>
     <div class="min-w-0">
-        <h4 class="text-truncate">@Model.Title</h4>
-        <span class="badge @ContractBadge(Model.Status)">@Model.Status</span>
-        @if (Model.IsExpiringSoon)
-        {
-            <span class="badge bg-warning text-dark ms-1"><i class="bi bi-clock"></i> Expire bientôt</span>
-        }
+        <h3 class="profile__name">@Model.Title</h3>
+        <div class="profile__meta">
+            <span class="status" data-tone="@look.Tone"><i class="bi @look.Icon" aria-hidden="true"></i>@look.Label</span>
+            @if (Model.IsExpiringSoon)
+            {
+                <span class="status" data-tone="alert"><i class="bi bi-alarm" aria-hidden="true"></i>Expire bientôt</span>
+            }
+            @if (life.IsOverdue)
+            {
+                <span class="status" data-tone="danger"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i>Échéance dépassée</span>
+            }
+        </div>
     </div>
 </div>
 
-<div class="detail-list">
-    <div class="detail-row">
-        <span class="detail-label"><i class="bi bi-person"></i> Client</span>
-        <span class="detail-value">@Model.Client?.Name</span>
+<div class="facts" data-reveal-group>
+    <div class="fact" data-reveal>
+        <span class="fact__label"><i class="bi bi-cash-stack" aria-hidden="true"></i> Montant</span>
+        <span class="fact__value fact__value--big">@Ui.Money(Model.Amount)</span>
     </div>
-    <div class="detail-row">
-        <span class="detail-label"><i class="bi bi-cash"></i> Montant</span>
-        <span class="detail-value">@Model.Amount.ToString("N2") €</span>
+    <div class="fact" data-reveal>
+        <span class="fact__label"><i class="bi bi-person" aria-hidden="true"></i> Client</span>
+        <span class="fact__value">
+            <button type="button" class="cell-link" data-panel-url="@Url.Action("Details", "Client", new { id = Model.ClientId })" data-title="Fiche client">@clientName</button>
+        </span>
     </div>
-    <div class="detail-row">
-        <span class="detail-label"><i class="bi bi-calendar-event"></i> Date de début</span>
-        <span class="detail-value">@Model.StartDate.ToString("dd/MM/yyyy")</span>
+    <div class="fact fact--wide" data-reveal>
+        <span class="fact__label"><i class="bi bi-calendar-range" aria-hidden="true"></i> Période · @months mois</span>
+        <partial name="_Lifespan" model="Model" view-data='new ViewDataDictionary(ViewData) { { "ShowDates", true } }' />
     </div>
-    <div class="detail-row">
-        <span class="detail-label"><i class="bi bi-calendar-check"></i> Date de fin</span>
-        <span class="detail-value">@Model.EndDate.ToString("dd/MM/yyyy")</span>
+    <div class="fact" data-reveal>
+        <span class="fact__label"><i class="bi bi-calendar-event" aria-hidden="true"></i> Début</span>
+        <span class="fact__value">@Ui.Date(Model.StartDate)</span>
     </div>
+    <div class="fact" data-reveal>
+        <span class="fact__label"><i class="bi bi-calendar-check" aria-hidden="true"></i> Fin</span>
+        <span class="fact__value">@Ui.Date(Model.EndDate)</span>
+    </div>
+</div>
+
+<div class="form-actions">
+    @if (isAdmin)
+    {
+        <button type="button" class="btn btn--ghost" data-modal-url="@Url.Action("Delete", "Contract", new { id = Model.Id })" data-title="">
+            <i class="bi bi-trash3" aria-hidden="true"></i> Supprimer
+        </button>
+        <button type="button" class="btn btn--primary" data-panel-url="@Url.Action("Edit", "Contract", new { id = Model.Id })" data-title="Modifier le contrat">
+            <i class="bi bi-pencil" aria-hidden="true"></i> Modifier le contrat
+        </button>
+    }
+    else
+    {
+        <p class="readonly-note"><i class="bi bi-lock" aria-hidden="true"></i> Lecture seule : la modification est réservée aux administrateurs.</p>
+    }
 </div>

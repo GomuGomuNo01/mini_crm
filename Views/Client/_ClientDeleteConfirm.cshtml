@@ -1,17 +1,36 @@
 @model Client
+@{
+    var standalone = ViewData["Standalone"] as bool? == true;
+    var count = Model.Contracts.Count;
+}
 
-<form asp-action="Delete" asp-route-id="@Model.Id" method="post" data-ajax-form>
+<form asp-action="Delete" asp-route-id="@Model.Id" method="post" data-ajax-form="@(standalone ? null : "")">
     <input type="hidden" asp-for="Id" />
-    <div class="text-center p-2">
-        <div class="mx-auto mb-3 d-grid" style="width:56px;height:56px;border-radius:50%;background:#fee2e2;color:#b91c1c;place-items:center;font-size:1.6rem;">
-            <i class="bi bi-trash"></i>
-        </div>
-        <h5 class="fw-bold mb-1">Supprimer le client</h5>
-        <p class="text-muted mb-1">Voulez-vous vraiment supprimer <strong>@Model.Name</strong> ?</p>
-        <p class="text-danger small mb-4">Ses @Model.Contracts.Count contrat(s) associé(s) seront aussi supprimés. Action irréversible.</p>
-        <div class="d-flex gap-2 justify-content-center">
-            <button type="button" class="btn btn-outline-secondary px-4" data-crud-close>Annuler</button>
-            <button type="submit" class="btn btn-danger px-4"><i class="bi bi-trash"></i> Supprimer</button>
+    <div class="confirm" data-tone="danger">
+        <div class="confirm__icon"><i class="bi bi-trash3" aria-hidden="true"></i></div>
+        <h2 class="confirm__title">Supprimer ce client ?</h2>
+        <p class="confirm__text"><strong>@Model.Name</strong> sera définitivement retiré de votre portefeuille.</p>
+        @if (count > 0)
+        {
+            <p class="confirm__note">
+                @(count == 1 ? "Son contrat associé sera aussi supprimé." : $"Ses {count} contrats associés seront aussi supprimés.")
+                Cette action est irréversible.
+            </p>
+        }
+        else
+        {
+            <p class="confirm__note confirm__note--muted">Aucun contrat associé. Cette action est irréversible.</p>
+        }
+        <div class="form-actions">
+            @if (standalone)
+            {
+                <a asp-action="Index" class="btn">Annuler</a>
+            }
+            else
+            {
+                <button type="button" class="btn" data-dialog-close autofocus>Annuler</button>
+            }
+            <button type="submit" class="btn btn--danger" data-loading><i class="bi bi-trash3" aria-hidden="true"></i> Supprimer définitivement</button>
         </div>
     </div>
 </form>

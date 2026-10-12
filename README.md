@@ -50,15 +50,45 @@ recherche dynamique).
   enregistrée **automatiquement**, avec l'auteur, la date/heure et le détail
   champ par champ des changements (« avant → après »).
 
-### Expérience utilisateur
-- Interface **responsive** (sidebar rétractable, mise en page adaptée mobile).
-- CRUD sans rechargement de page : **modals centrés** (création, suppression,
-  non fermables au clic extérieur) et **panneaux latéraux** glissants
-  (consultation en lecture seule, édition).
-- **Notifications toast** de confirmation après chaque action.
-- **Filtres de recherche dynamiques** (déclenchés à la saisie / au changement de
-  sélection, sans rechargement).
-- Champs de mot de passe avec bouton afficher/masquer.
+### Expérience utilisateur — identité « Prune »
+- **Identité visuelle propre** : encre prune, porcelaine lilas, accent corail
+  réservé aux échéances ; titres en serif éditoriale (*Instrument Serif*),
+  interface en *Plus Jakarta Sans*. Thème **clair / sombre** (préférence système
+  par défaut, bascule mémorisée).
+- **Design system maison** sans Bootstrap ni jQuery : tokens (couleurs,
+  typographie, espacements 4→128 px, rayons, ombres, motion) dans
+  [`tokens.css`](wwwroot/css/tokens.css), composants réutilisables dans
+  [`components.css`](wwwroot/css/components.css).
+- **Système de motion unique** : mêmes durées, mêmes courbes, mêmes amplitudes
+  partout ; révélation au scroll avec décalage hiérarchique, transitions entre
+  pages (View Transitions), indicateur de navigation qui glisse d'une page à
+  l'autre. `prefers-reduced-motion` respecté (animations décoratives coupées).
+- **Signature métier** : chaque contrat affiche sa *durée de vie* (barre début →
+  fin avec repère « aujourd'hui ») et sa légende : « Expire dans 12 jours »,
+  « Échéance dépassée de 88 jours »…
+- **Tableau de bord** : indicateurs animés, alerte des contrats actifs dont la
+  date de fin est dépassée, échéances avec compte à rebours, anneau de
+  répartition en SVG (rendu serveur, légende interactive), derniers contrats.
+- **Navigation adaptée au support** : dock flottant (desktop), rail d'icônes
+  (tablette), barre d'onglets + feuille de menu (mobile) ; les tableaux
+  deviennent des cartes sur petit écran.
+- CRUD sans rechargement : **modales** (création, suppression) et **tiroir
+  latéral** (fiche, édition) qui devient une feuille montante sur mobile ;
+  squelettes de chargement, boutons à états (chargement → succès),
+  **notifications** avec minuterie (pause au survol).
+- **Formulaires** : validation en ligne (lit les attributs `data-val-*` du
+  serveur), erreurs au plus près du champ, saisies conservées, exigences du mot
+  de passe cochées en direct, durée du contrat calculée en direct.
+- **Recherche** instantanée (raccourci <kbd>/</kbd>), filtres par statut en
+  pastilles, pagination fenêtrée, export CSV qui suit les filtres.
+- **Journal d'audit** en frise chronologique, regroupée par jour, avec le
+  détail « avant → après » mis en forme.
+- **Vitrine publique** (`/` pour un visiteur) : hero avec aperçu produit en
+  parallaxe, récit au scroll, démo interactive, FAQ ; page de connexion avec
+  comptes de démonstration en un clic (environnement Development uniquement).
+- **Accessibilité** : navigation clavier complète, focus visible, lien
+  d'évitement, `<dialog>` natifs (piège du focus, Échap), libellés et
+  `aria-*`, statuts jamais signalés par la seule couleur, contrastes AA.
 - Verrouillage de compte après plusieurs échecs de connexion.
 
 ---
@@ -72,8 +102,8 @@ recherche dynamique).
 | Base de données   | MySQL (via WAMP en local)                       | 8.x / 9.x |
 | Provider EF       | `MySql.EntityFrameworkCore` (Oracle officiel)   | 10.0.7    |
 | Authentification  | ASP.NET Core Identity                           | inclus    |
-| Front-end         | Bootstrap 5 + Bootstrap Icons                   | 5.3       |
-| Graphiques        | Chart.js (CDN)                                  | 4.x       |
+| Front-end         | Design system maison (CSS + JS natif) + Bootstrap Icons | —  |
+| Graphiques        | SVG rendu côté serveur (aucune librairie)       | —         |
 | Tunnel de démo    | ngrok                                            | v3        |
 
 > **Pourquoi MySQL et pas SQL Server ?** Le projet est pensé pour tourner en
@@ -100,11 +130,14 @@ MiniCrm/
 │   ├── ApplicationDbContext.cs     DbContext (Identity + entités métier)
 │   ├── AuditSaveChangesInterceptor.cs   Intercepteur EF Core : journalise chaque SaveChanges
 │   └── SeedData.cs                 Rôles, admin de démo, données d'exemple
+├── Helpers/Ui.cs                   Langage visuel partagé (libellés, tons, durée de vie des contrats, audit)
 ├── Views/
+│   ├── Home/Index.cshtml           Vitrine publique (hero, récit au scroll, démo, FAQ)
 │   ├── Client/ Contract/ Sector/ User/ Dashboard/ Audit/  Vues + partials AJAX (_XxxForm, _XxxTable, _XxxDetails)
-│   └── Shared/_Layout.cshtml       Layout (sidebar, modal CRUD, offcanvas, toasts)
+│   └── Shared/                     _Layout (dock, dialogs, toasts), _PublicLayout, _Lifespan, _Pager
 ├── Migrations/                     Historique des migrations EF Core
-├── wwwroot/                        CSS (design system), JS (interactions AJAX), librairies front
+├── wwwroot/css/                    tokens · base · components · app · public (design system « Prune »)
+├── wwwroot/js/                     core (thème, dialogs, toasts, motion) · app (formulaires, CRUD) · public
 ├── ngrok.yml                       Config de tunnel ngrok (non versionné, contient un token)
 └── Program.cs                      Pipeline, DI, Identity, sécurité, seed au démarrage
 ```
@@ -302,8 +335,8 @@ l'application.
 
 ## Tests
 
-Le projet [`MiniCrm.Tests`](MiniCrm.Tests/) contient une suite de **52 tests
-unitaires** (xUnit) couvrant la logique métier :
+Le projet [`MiniCrm.Tests`](MiniCrm.Tests/) contient une suite de **78 tests
+unitaires** (xUnit) couvrant la logique métier et les règles de présentation :
 
 | Fichier | Ce qui est testé |
 |---|---|
@@ -313,6 +346,7 @@ unitaires** (xUnit) couvrant la logique métier :
 | `Services/AuditServiceTests.cs` | Écriture des entrées d'audit, troncature, pagination |
 | `Data/AuditSaveChangesInterceptorTests.cs` | **Audit automatique** : création/modification/suppression détectées sans appel manuel, détails multi-lignes, absence d'audit hors authentification, pas de boucle infinie |
 | `Models/ContractTests.cs` | Calcul de `IsExpiringSoon` (bornes de la fenêtre des 30 jours) |
+| `Helpers/UiTests.cs` | Libellés et tons des statuts, monogrammes, montants, durée de vie d'un contrat (alerte, dépassement), lecture du journal d'audit, pagination fenêtrée |
 
 Les tests utilisent le provider **EF Core InMemory** (aucune dépendance à
 MySQL/WAMP n'est nécessaire pour les exécuter).
@@ -335,7 +369,7 @@ dotnet test MiniCrm.Tests/MiniCrm.Tests.csproj --filter "FullyQualifiedName~Clie
 Série de tests pour D:\PROJET PERSO\MiniCrm\MiniCrm.Tests\bin\Debug\net10.0\MiniCrm.Tests.dll (.NETCoreApp,Version=v10.0)
 Au total, 1 fichiers de test ont correspondu au modèle spécifié.
 
-Réussi!  - échec :     0, réussite :    52, ignorée(s) :     0, total :    52, durée : 1 s - MiniCrm.Tests.dll (net10.0)
+Réussi!  - échec :     0, réussite :    78, ignorée(s) :     0, total :    78, durée : 2 s - MiniCrm.Tests.dll (net10.0)
 ```
 
 ---

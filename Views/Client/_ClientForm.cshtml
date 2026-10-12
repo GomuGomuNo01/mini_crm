@@ -3,50 +3,85 @@
     var sectors = (ViewBag.Sectors as IReadOnlyList<string>) ?? new List<string>();
     var isEdit = Model.Id != 0;
     var action = isEdit ? "Edit" : "Create";
+    var standalone = ViewData["Standalone"] as bool? == true;
 }
 
-<form asp-action="@action" asp-route-id="@(isEdit ? (int?)Model.Id : null)" method="post" data-ajax-form>
-    <div asp-validation-summary="ModelOnly" class="alert alert-warning py-2 px-3 mb-3"
-         style="display:@(ViewData.ModelState.ErrorCount > 0 ? "block" : "none")"></div>
+<form asp-action="@action" asp-route-id="@(isEdit ? (int?)Model.Id : null)" method="post" class="form-grid"
+      data-ajax-form="@(standalone ? null : "")" novalidate>
+    <div asp-validation-summary="ModelOnly" class="callout" data-tone="danger"></div>
     @if (isEdit)
     {
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="CreatedAt" />
     }
 
-    <div class="form-floating mb-3">
-        <input asp-for="Name" class="form-control" placeholder="Nom" />
-        <label asp-for="Name"></label>
-        <span asp-validation-for="Name" class="text-danger small"></span>
+    <div class="field">
+        <label class="field__label" asp-for="Name">Nom du client <span class="field__req">Obligatoire</span></label>
+        <div class="field__control">
+            <i class="bi bi-buildings field__icon" aria-hidden="true"></i>
+            <input asp-for="Name" class="input" placeholder="Ex. Boulangerie Martin" autocomplete="organization" />
+            <span class="field__state" aria-hidden="true"></span>
+        </div>
+        <span asp-validation-for="Name" class="field__error"></span>
     </div>
 
-    <div class="form-floating mb-3">
-        <input asp-for="Email" class="form-control" placeholder="Email" />
-        <label asp-for="Email"></label>
-        <span asp-validation-for="Email" class="text-danger small"></span>
+    <div class="field">
+        <label class="field__label" asp-for="Email">Email de contact <span class="field__req">Obligatoire</span></label>
+        <div class="field__control">
+            <i class="bi bi-envelope field__icon" aria-hidden="true"></i>
+            <input asp-for="Email" class="input" placeholder="contact@entreprise.fr" autocomplete="email" />
+            <span class="field__state" aria-hidden="true"></span>
+        </div>
+        <span asp-validation-for="Email" class="field__error"></span>
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Secteur</label>
-        <select class="form-select mb-2" data-sector-select>
-            <option value="">-- Choisir un secteur --</option>
-            @foreach (var s in sectors)
+    <div class="field" data-sector-field>
+        <label class="field__label" for="sectorSelect">Secteur d'activité <span class="field__req">Facultatif</span></label>
+        <div class="field__control">
+            <i class="bi bi-briefcase field__icon" aria-hidden="true"></i>
+            <select id="sectorSelect" class="select" data-sector-select aria-describedby="sectorHint">
+                <option value="">Aucun secteur</option>
+                @foreach (var s in sectors)
+                {
+                    <option value="@s">@s</option>
+                }
+                <option value="__other__">Autre… (nouveau secteur)</option>
+            </select>
+        </div>
+        <div class="field__control" data-sector-other hidden>
+            <i class="bi bi-plus-circle field__icon" aria-hidden="true"></i>
+            <input asp-for="Sector" class="input" data-sector-input placeholder="Nom du nouveau secteur" aria-label="Nom du nouveau secteur" />
+            <span class="field__state" aria-hidden="true"></span>
+        </div>
+        <p class="field__hint" id="sectorHint">Absent de la liste ? Choisissez « Autre… » : il rejoindra le catalogue.</p>
+        <span asp-validation-for="Sector" class="field__error"></span>
+    </div>
+
+    <fieldset class="field">
+        <legend class="field__label">Statut</legend>
+        <div class="segmented">
+            @foreach (var s in Enum.GetValues<ClientStatus>())
             {
-                <option value="@s">@s</option>
+                var look = Ui.Of(s);
+                <label data-tone="@look.Tone">
+                    <input type="radio" asp-for="Status" value="@s" id="ClientStatus_@s" />
+                    <span><i class="bi @look.Icon" aria-hidden="true"></i>@look.Label</span>
+                </label>
             }
-            <option value="__other__">Autre…</option>
-        </select>
-        <input asp-for="Sector" class="form-control" data-sector-input placeholder="Saisir le nouveau secteur" />
-        <span asp-validation-for="Sector" class="text-danger small"></span>
-    </div>
+        </div>
+    </fieldset>
 
-    <div class="form-floating mb-3">
-        <select asp-for="Status" asp-items="Html.GetEnumSelectList<ClientStatus>()" class="form-select"></select>
-        <label asp-for="Status"></label>
-    </div>
-
-    <div class="d-flex gap-2 mt-2">
-        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Enregistrer</button>
-        <button type="button" class="btn btn-outline-secondary" data-crud-close>Annuler</button>
+    <div class="form-actions">
+        @if (standalone)
+        {
+            <a asp-action="Index" class="btn btn--ghost">Annuler</a>
+        }
+        else
+        {
+            <button type="button" class="btn btn--ghost" data-dialog-close>Annuler</button>
+        }
+        <button type="submit" class="btn btn--primary" data-loading>
+            <i class="bi bi-check-lg" aria-hidden="true"></i> @(isEdit ? "Enregistrer les modifications" : "Créer le client")
+        </button>
     </div>
 </form>

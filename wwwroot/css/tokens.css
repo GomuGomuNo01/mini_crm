@@ -1,0 +1,262 @@
+/* ==========================================================================
+   DESIGN TOKENS — Mini-CRM « Prune »
+   Source unique des valeurs visuelles. Aucun composant n'utilise de valeur
+   arbitraire : couleurs, typographie, espacements, rayons, ombres, motion.
+
+   Identité : un registre élégant. Encre prune profonde, porcelaine lilas,
+   un accent corail réservé aux échéances, des titres en serif éditoriale
+   (Instrument Serif) et une interface nette (Plus Jakarta Sans).
+
+   Breakpoints (les media queries ne lisent pas les variables : ces valeurs
+   sont reprises telles quelles partout) :
+     sm  40em  (640px)   grands smartphones
+     md  48em  (768px)   tablettes  → navigation en rail
+     lg  64em  (1024px)  laptops    → navigation complète
+     xl  80em  (1280px)  desktop
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* ---------- Surfaces ---------- */
+  --color-bg:            #f7f5fa;
+  --color-bg-tint:       #efe8f5;
+  --color-surface:       #ffffff;
+  --color-surface-2:     #f4f1f8;
+  --color-surface-3:     #e9e4f0;
+  --color-raised:        #ffffff;
+  --color-glass:         rgba(255, 255, 255, 0.72);
+  --color-overlay:       rgba(24, 12, 32, 0.42);
+
+  /* ---------- Encre ---------- */
+  --color-ink:           #1d1426;
+  --color-ink-2:         #483f55;
+  --color-ink-3:         #6a617a;   /* 5,4:1 sur le fond */
+  --color-ink-placeholder: #776e86; /* 4,6:1 sur blanc */
+  --color-ink-inverse:   #ffffff;
+
+  /* ---------- Lignes ---------- */
+  --color-border:        rgba(45, 20, 60, 0.10);
+  --color-border-strong: rgba(45, 20, 60, 0.20);
+  --color-input-border:  #9890a6;   /* 3:1 : limite de champ perceptible */
+
+  /* ---------- Marque : prune ---------- */
+  --color-brand:         #7a2e8e;   /* liens, icônes : 7,5:1 */
+  --color-brand-strong:  #6a2479;   /* fond des boutons principaux */
+  --color-brand-hover:   #581d65;
+  --color-brand-soft:    #f5e9f8;
+  --color-brand-soft-2:  #ecd6f2;
+  --color-brand-line:    rgba(122, 46, 142, 0.32);
+  --color-on-brand:      #ffffff;
+  --color-focus:         #9346a9;
+
+  /* ---------- Accent : corail (échéances, temps qui passe) ---------- */
+  --color-accent:        #ff7a59;
+  --color-accent-ink:    #b23c1c;
+  --color-accent-soft:   #ffeee8;
+
+  /* ---------- Tons sémantiques (texte / fond / ligne / plein) ---------- */
+  --tone-success-ink: #0d7a52; --tone-success-bg: #e3f5ec; --tone-success-line: #9fd9bd; --tone-success-solid: #13a06b;
+  --tone-warning-ink: #8a5100; --tone-warning-bg: #fff3dc; --tone-warning-line: #f3cf8a; --tone-warning-solid: #e59a1c;
+  --tone-danger-ink:  #b3203f; --tone-danger-bg:  #fde8ec; --tone-danger-line:  #f4b3c1; --tone-danger-solid:  #d93a5b;
+  --tone-neutral-ink: #534b60; --tone-neutral-bg: #efecf3; --tone-neutral-line: #d6d0de; --tone-neutral-solid: #8b8399;
+  --tone-info-ink:    #6a2479; --tone-info-bg:    #f5e9f8; --tone-info-line:    #dcb8e6; --tone-info-solid:    #9346a9;
+  --tone-alert-ink:   #a8391a; --tone-alert-bg:   #ffece5; --tone-alert-line:   #ffc2ad; --tone-alert-solid:   #ff7a59;
+
+  /* ---------- Monogrammes (6 teintes déterministes) ---------- */
+  --hue-0-bg: #f1e3f6; --hue-0-ink: #6a2479;
+  --hue-1-bg: #ffe8df; --hue-1-ink: #a8391a;
+  --hue-2-bg: #dcf2ef; --hue-2-ink: #0f6b64;
+  --hue-3-bg: #fff0d4; --hue-3-ink: #85500a;
+  --hue-4-bg: #fde6ee; --hue-4-ink: #a3244f;
+  --hue-5-bg: #e8e8fb; --hue-5-ink: #3f3f9a;
+
+  /* ---------- Dégradés de marque ---------- */
+  --gradient-brand:  linear-gradient(135deg, #6a2479 0%, #a23a8c 52%, #ff7a59 100%);
+  --gradient-text:   linear-gradient(100deg, #7a2e8e 0%, #b8357f 55%, #d9532f 100%);
+  --gradient-deep:   radial-gradient(120% 140% at 0% 0%, #7d2f8f 0%, #3d1449 46%, #1f0a27 100%);
+  --aurora-1: rgba(162, 58, 140, 0.20);
+  --aurora-2: rgba(255, 122, 89, 0.16);
+  --aurora-3: rgba(122, 46, 142, 0.14);
+
+  /* ---------- Typographie ---------- */
+  --font-display: "Instrument Serif", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-sans:    "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:    ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+
+  --text-2xs:     0.6875rem;                                   /* 11px : étiquettes */
+  --text-xs:      0.75rem;                                     /* 12px */
+  --text-sm:      0.875rem;                                    /* 14px */
+  --text-base:    1rem;                                        /* 16px : corps */
+  --text-md:      1.125rem;                                    /* 18px */
+  --text-lg:      1.3125rem;                                   /* 21px : H3 */
+  --text-xl:      clamp(1.5rem, 1.25rem + 1vw, 1.875rem);      /* chiffres clés */
+  --text-2xl:     clamp(1.875rem, 1.5rem + 1.6vw, 2.625rem);   /* H2 */
+  --text-3xl:     clamp(2.375rem, 1.8rem + 2.4vw, 3.5rem);     /* H1 applicatif */
+  --text-4xl:     clamp(2.5rem, 1.7rem + 3.6vw, 4.5rem);       /* H2 vitrine */
+  --text-display: clamp(3rem, 1.6rem + 6vw, 6.75rem);          /* H1 vitrine */
+
+  --leading-none:   1;
+  --leading-tight:  1.04;
+  --leading-snug:   1.25;
+  --leading-normal: 1.6;
+
+  --tracking-display: -0.015em;
+  --tracking-tight:   -0.01em;
+  --tracking-wide:    0.08em;
+
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* ---------- Espacements (échelle unique) ---------- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  24px;
+  --space-6:  32px;
+  --space-7:  48px;
+  --space-8:  64px;
+  --space-9:  96px;
+  --space-10: 128px;
+
+  /* ---------- Rayons ---------- */
+  --radius-xs:   6px;
+  --radius-sm:   10px;
+  --radius-md:   14px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --radius-full: 999px;
+
+  /* ---------- Ombres (teintées prune, jamais noires) ---------- */
+  --shadow-1: 0 1px 2px rgba(40, 16, 52, 0.05), 0 1px 1px rgba(40, 16, 52, 0.03);
+  --shadow-2: 0 2px 4px -1px rgba(40, 16, 52, 0.06), 0 10px 28px -8px rgba(40, 16, 52, 0.14);
+  --shadow-3: 0 28px 64px -18px rgba(40, 16, 52, 0.30), 0 10px 24px -10px rgba(40, 16, 52, 0.16);
+  --shadow-glow: 0 12px 28px -10px rgba(122, 46, 142, 0.55);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+
+  /* ---------- Motion : un seul système ----------
+     micro (100–180) · hover (150–200) · composant (200–300)
+     transition (300–450) · complexe (500–800) */
+  --dur-micro:      120ms;
+  --dur-hover:      180ms;
+  --dur-component:  260ms;
+  --dur-transition: 400ms;
+  --dur-complex:    700ms;
+
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);     /* entrées : rapide puis se pose */
+  --ease-in:     cubic-bezier(0.5, 0, 0.75, 0);     /* sorties : s'efface vite */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);    /* déplacements d'état */
+  --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1); /* coches, bascules : léger rebond */
+
+  /* Amplitudes : personne ne bouge de plus de 24px */
+  --move-1: 2px;
+  --move-2: 6px;
+  --move-3: 12px;
+  --move-4: 24px;
+  --scale-press: 0.97;
+  --scale-enter: 0.97;
+  --stagger: 70ms;
+
+  /* ---------- Plans ---------- */
+  --z-raised: 2;
+  --z-sticky: 20;
+  --z-dock:   30;
+  --z-tabbar: 40;
+  --z-toast:  90;
+
+  /* ---------- Gabarits ---------- */
+  --dock-width:   268px;
+  --rail-width:   84px;
+  --content-max:  1240px;
+  --public-max:   1200px;
+  --gutter:       clamp(16px, 3.2vw, 40px);
+  --tabbar-h:     68px;
+  --control-h:    46px;
+  --control-h-sm: 36px;
+  --control-h-lg: 54px;
+}
+
+/* ---------- Thème sombre : nuit prune ---------- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg:            #110c16;
+  --color-bg-tint:       #1b1224;
+  --color-surface:       #18121f;
+  --color-surface-2:     #201828;
+  --color-surface-3:     #2a2134;
+  --color-raised:        #1f1828;
+  --color-glass:         rgba(28, 21, 36, 0.72);
+  --color-overlay:       rgba(4, 2, 8, 0.66);
+
+  --color-ink:           #f4eff8;
+  --color-ink-2:         #cdc3d8;
+  --color-ink-3:         #a398b0;
+  --color-ink-placeholder: #8a7f97;
+  --color-ink-inverse:   #1d1426;
+
+  --color-border:        rgba(240, 225, 255, 0.09);
+  --color-border-strong: rgba(240, 225, 255, 0.18);
+  --color-input-border:  #6e6380;
+
+  --color-brand:         #d9a5ea;
+  --color-brand-strong:  #d7a1ea;
+  --color-brand-hover:   #e6bff2;
+  --color-brand-soft:    rgba(201, 140, 222, 0.14);
+  --color-brand-soft-2:  rgba(201, 140, 222, 0.24);
+  --color-brand-line:    rgba(217, 165, 234, 0.35);
+  --color-on-brand:      #1f0c27;
+  --color-focus:         #e2b6f0;
+
+  --color-accent:        #ff8f72;
+  --color-accent-ink:    #ffb39f;
+  --color-accent-soft:   rgba(255, 122, 89, 0.14);
+
+  --tone-success-ink: #6fdcaa; --tone-success-bg: rgba(19, 160, 107, 0.16); --tone-success-line: rgba(111, 220, 170, 0.30); --tone-success-solid: #3cc48c;
+  --tone-warning-ink: #f6c46b; --tone-warning-bg: rgba(229, 154, 28, 0.16); --tone-warning-line: rgba(246, 196, 107, 0.30); --tone-warning-solid: #f0b03f;
+  --tone-danger-ink:  #ff8fa6; --tone-danger-bg:  rgba(217, 58, 91, 0.18);  --tone-danger-line:  rgba(255, 143, 166, 0.30); --tone-danger-solid:  #f0607d;
+  --tone-neutral-ink: #c3bacd; --tone-neutral-bg: rgba(200, 190, 215, 0.10); --tone-neutral-line: rgba(200, 190, 215, 0.20); --tone-neutral-solid: #8b8399;
+  --tone-info-ink:    #e0b3ef; --tone-info-bg:    rgba(201, 140, 222, 0.16); --tone-info-line:    rgba(224, 179, 239, 0.30); --tone-info-solid:    #c98cde;
+  --tone-alert-ink:   #ffab92; --tone-alert-bg:   rgba(255, 122, 89, 0.15);  --tone-alert-line:   rgba(255, 171, 146, 0.30); --tone-alert-solid:   #ff8f72;
+
+  --hue-0-bg: rgba(201, 140, 222, 0.18); --hue-0-ink: #e3b9f1;
+  --hue-1-bg: rgba(255, 122, 89, 0.16);  --hue-1-ink: #ffb59d;
+  --hue-2-bg: rgba(45, 190, 175, 0.15);  --hue-2-ink: #7fe0d5;
+  --hue-3-bg: rgba(229, 154, 28, 0.15);  --hue-3-ink: #f6c46b;
+  --hue-4-bg: rgba(232, 90, 140, 0.15);  --hue-4-ink: #ff9fc0;
+  --hue-5-bg: rgba(120, 120, 240, 0.16); --hue-5-ink: #b9b9ff;
+
+  --gradient-text: linear-gradient(100deg, #e4b2f3 0%, #f59ac3 55%, #ffab8f 100%);
+  --aurora-1: rgba(162, 58, 140, 0.26);
+  --aurora-2: rgba(255, 122, 89, 0.12);
+  --aurora-3: rgba(122, 46, 142, 0.22);
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 2px 4px -1px rgba(0, 0, 0, 0.4), 0 12px 28px -8px rgba(0, 0, 0, 0.5);
+  --shadow-3: 0 30px 70px -18px rgba(0, 0, 0, 0.7), 0 10px 24px -10px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 12px 30px -10px rgba(215, 161, 234, 0.45);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- Mouvement réduit : on garde le sens, pas le mouvement ----------
+   Les durées tombent à ~0 et les amplitudes à 0. Les indicateurs de
+   chargement (spinner, barre) gardent leur animation : ils sont fonctionnels. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-micro: 1ms;
+    --dur-hover: 1ms;
+    --dur-component: 1ms;
+    --dur-transition: 1ms;
+    --dur-complex: 1ms;
+    --move-1: 0px;
+    --move-2: 0px;
+    --move-3: 0px;
+    --move-4: 0px;
+    --scale-press: 1;
+    --scale-enter: 1;
+    --stagger: 0ms;
+  }
+}

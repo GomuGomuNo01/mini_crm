@@ -1,57 +1,73 @@
 @model PagedResult<MiniCrm.Models.Sector>
 @{
     var search = ViewBag.Search as string;
+    var hasSearch = !string.IsNullOrWhiteSpace(search);
 }
 
-<p class="text-muted mb-2 small">@Model.TotalCount secteur@(Model.TotalCount > 1 ? "s" : "") trouvé@(Model.TotalCount > 1 ? "s" : "")</p>
+<p class="list-meta">
+    <span data-count><strong>@Ui.Plural(Model.TotalCount, "secteur", "secteurs")</strong>@(hasSearch ? $" pour « {search} »" : "")</span>
+</p>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead>
-            <tr>
-                <th>Secteur</th>
-                <th class="text-end">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            @if (!Model.Items.Any())
+<div class="panel table-panel">
+    @if (!Model.Items.Any())
+    {
+        <div class="empty">
+            @if (hasSearch)
             {
-                <tr><td colspan="2"><div class="empty-state"><i class="bi bi-tags"></i>Aucun secteur trouvé.</div></td></tr>
+                <div class="empty__icon"><i class="bi bi-search" aria-hidden="true"></i></div>
+                <p class="empty__title">Aucun secteur ne correspond</p>
+                <p class="empty__text">Vérifiez l'orthographe ou ajoutez ce secteur au catalogue.</p>
+                <button type="button" class="btn btn--sm" data-reset><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Effacer la recherche</button>
             }
-            @foreach (var s in Model.Items)
+            else
             {
+                <div class="empty__icon"><i class="bi bi-tags" aria-hidden="true"></i></div>
+                <p class="empty__title">Le catalogue est vide</p>
+                <p class="empty__text">Ajoutez des secteurs pour les proposer dans les fiches clients.</p>
+                <button type="button" class="btn btn--primary btn--sm" data-modal-url="@Url.Action("Create")" data-title="Nouveau secteur">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i> Ajouter un secteur
+                </button>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="table table--stack">
+                <caption class="visually-hidden">Catalogue des secteurs</caption>
+                <thead>
                 <tr>
-                    <td class="fw-semibold"><i class="bi bi-tag text-muted me-1"></i> @s.Name</td>
-                    <td class="text-end">
-                        <button type="button" class="btn btn-sm btn-outline-primary" title="Modifier"
-                                data-modal-url="@Url.Action("Edit", new { id = s.Id })" data-title="Modifier le secteur"><i class="bi bi-pencil"></i></button>
-                        <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer"
-                                data-modal-url="@Url.Action("Delete", new { id = s.Id })" data-title=""><i class="bi bi-trash"></i></button>
-                    </td>
+                    <th scope="col">Secteur</th>
+                    <th scope="col" class="is-end"><span class="visually-hidden">Actions</span></th>
                 </tr>
-            }
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody data-reveal-group>
+                @foreach (var s in Model.Items)
+                {
+                    <tr data-reveal="fade">
+                        <td class="is-primary">
+                            <div class="cell-main">
+                                <span class="avatar avatar--round" data-hue="@Ui.Hue(s.Name)" aria-hidden="true"><i class="bi bi-tag"></i></span>
+                                <span class="cell-title">@s.Name</span>
+                            </div>
+                        </td>
+                        <td class="is-end is-actions">
+                            <div class="row-actions">
+                                <button type="button" class="icon-btn icon-btn--brand" data-modal-url="@Url.Action("Edit", new { id = s.Id })" data-title="Renommer le secteur"
+                                        aria-label="Renommer @s.Name" data-tip="Renommer"><i class="bi bi-pencil" aria-hidden="true"></i></button>
+                                <button type="button" class="icon-btn icon-btn--danger" data-modal-url="@Url.Action("Delete", new { id = s.Id })" data-title=""
+                                        aria-label="Supprimer @s.Name" data-tip="Supprimer"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>
 
 @if (Model.TotalPages > 1)
 {
-    <nav class="mt-3">
-        <ul class="pagination justify-content-center">
-            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
-                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber - 1)" asp-route-search="@search">Précédent</a>
-            </li>
-            @for (int i = 1; i <= Model.TotalPages; i++)
-            {
-                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-search="@search">@i</a>
-                </li>
-            }
-            <li class="page-item @(Model.HasNext ? "" : "disabled")">
-                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber + 1)" asp-route-search="@search">Suivant</a>
-            </li>
-        </ul>
-    </nav>
+    <partial name="_Pager" model='new PagerModel(Model.PageNumber, Model.TotalPages, p => Url.Action("Index", new { page = p, search })!)' />
 }
