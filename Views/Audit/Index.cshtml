@@ -1,103 +1,92 @@
 @model PagedResult<MiniCrm.Models.AuditLog>
 @{
     ViewData["Title"] = "Journal d'audit";
+    ViewData["Eyebrow"] = "Administration";
+    ViewData["Lead"] = "Chaque création, modification ou suppression est consignée automatiquement : qui, quand, et ce qui a changé.";
 
-    string ActionBadge(string a) => a switch
-    {
-        "Création" => "bg-success",
-        "Modification" => "bg-info",
-        "Suppression" => "bg-danger",
-        _ => "bg-secondary"
-    };
-    string ActionIcon(string a) => a switch
-    {
-        "Création" => "bi-plus-circle",
-        "Modification" => "bi-pencil",
-        "Suppression" => "bi-trash",
-        _ => "bi-dot"
-    };
+    var days = Model.Items
+        .GroupBy(l => l.Timestamp.ToLocalTime().Date)
+        .OrderByDescending(g => g.Key)
+        .ToList();
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <p class="text-muted mb-0">
-        <i class="bi bi-shield-lock"></i>
-        Traçabilité des actions - @Model.TotalCount entrée@(Model.TotalCount > 1 ? "s" : "")
-    </p>
-</div>
+<p class="list-meta" data-reveal style="--reveal-index:3">
+    <span><strong>@Ui.Plural(Model.TotalCount, "action enregistrée", "actions enregistrées")</strong> · les plus récentes en premier</span>
+</p>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead>
-            <tr>
-                <th>Date &amp; heure</th>
-                <th>Utilisateur</th>
-                <th>Action</th>
-                <th>Type</th>
-                <th>Élément concerné</th>
-                <th>Détails (avant → après)</th>
-            </tr>
-            </thead>
-            <tbody>
-            @if (!Model.Items.Any())
-            {
-                <tr>
-                    <td colspan="6">
-                        <div class="empty-state"><i class="bi bi-inbox"></i>Aucune action enregistrée pour le moment.</div>
-                    </td>
-                </tr>
-            }
-            @foreach (var log in Model.Items)
-            {
-                <tr>
-                    <td class="text-muted" style="white-space:nowrap;">
-                        @log.Timestamp.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")
-                    </td>
-                    <td class="fw-semibold">@log.UserName</td>
-                    <td>
-                        <span class="badge @ActionBadge(log.Action)"><i class="bi @ActionIcon(log.Action)"></i> @log.Action</span>
-                    </td>
-                    <td>@log.EntityType</td>
-                    <td>
-                        @(string.IsNullOrEmpty(log.EntityLabel) ? "Non renseigné" : log.EntityLabel)
-                        @if (log.EntityId.HasValue)
-                        {
-                            <span class="text-muted small">#@log.EntityId</span>
-                        }
-                    </td>
-                    <td style="max-width: 360px;">
-                        @if (string.IsNullOrEmpty(log.Details))
-                        {
-                            <span class="text-muted">Aucun détail</span>
-                        }
-                        else
-                        {
-                            <span class="small audit-details">@log.Details</span>
-                        }
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
-    </div>
-</div>
-
-@if (Model.TotalPages > 1)
+@if (!Model.Items.Any())
 {
-    <nav class="mt-3">
-        <ul class="pagination justify-content-center">
-            <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
-                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber - 1)">Précédent</a>
-            </li>
-            @for (int i = 1; i <= Model.TotalPages; i++)
-            {
-                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
-                </li>
-            }
-            <li class="page-item @(Model.HasNext ? "" : "disabled")">
-                <a class="page-link" asp-action="Index" asp-route-page="@(Model.PageNumber + 1)">Suivant</a>
-            </li>
-        </ul>
-    </nav>
+    <div class="panel" data-reveal>
+        <div class="empty">
+            <div class="empty__icon"><i class="bi bi-shield-check" aria-hidden="true"></i></div>
+            <p class="empty__title">Rien à signaler pour l'instant</p>
+            <p class="empty__text">Les prochaines créations, modifications et suppressions apparaîtront ici, avec leur auteur et le détail des changements.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="timeline">
+        @foreach (var day in days)
+        {
+            <section class="timeline__day" aria-label="@Ui.DayLabel(day.Key)">
+                <h2 class="timeline__date">@Ui.DayLabel(day.Key)</h2>
+                <ol class="timeline__list" role="list" data-reveal-group>
+                    @foreach (var log in day.OrderByDescending(l => l.Timestamp))
+                    {
+                        var act = Ui.OfAction(log.Action);
+                        var changes = Ui.ParseDetails(log.Details);
+                        var local = log.Timestamp.ToLocalTime();
+                        <li class="event" data-reveal>
+                            <span class="event__node" data-tone="@act.Tone" aria-hidden="true"><i class="bi @act.Icon"></i></span>
+                            <article class="panel event__card">
+                                <p class="event__line">
+                                    <strong>@log.UserName</strong> @act.Label @Ui.EntityPhrase(log.EntityType)
+                                    <strong>@(string.IsNullOrEmpty(log.EntityLabel) ? "(sans nom)" : log.EntityLabel)</strong>
+                                </p>
+                                <p class="event__meta">
+                                    <time datetime="@local.ToString("yyyy-MM-ddTHH:mm:ss")"><i class="bi bi-clock" aria-hidden="true"></i> @local.ToString("HH:mm")</time>
+                                    @if (!string.IsNullOrEmpty(log.UserRole))
+                                    {
+                                        <span class="chip">@(log.UserRole == "Admin" ? "Administrateur" : "Utilisateur")</span>
+                                    }
+                                    <span class="chip">@log.EntityType@(log.EntityId.HasValue ? $" #{log.EntityId}" : "")</span>
+                                </p>
+                                @if (changes.Any())
+                                {
+                                    <div class="diff">
+                                        @foreach (var ch in changes)
+                                        {
+                                            if (ch.IsDiff)
+                                            {
+                                                <div class="diff__row">
+                                                    <span class="diff__field">@ch.Field</span>
+                                                    <span class="diff__values">
+                                                        <span class="visually-hidden">avant :</span>
+                                                        <span class="diff__old">@ch.Old</span>
+                                                        <i class="bi bi-arrow-right diff__arrow" aria-hidden="true"></i>
+                                                        <span class="visually-hidden">après :</span>
+                                                        <span class="diff__new">@ch.New</span>
+                                                    </span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <p class="diff__raw">@ch.Raw</p>
+                                            }
+                                        }
+                                    </div>
+                                }
+                            </article>
+                        </li>
+                    }
+                </ol>
+            </section>
+        }
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <partial name="_Pager" model='new PagerModel(Model.PageNumber, Model.TotalPages, p => Url.Action("Index", new { page = p })!)' />
+    }
 }

@@ -1,69 +1,102 @@
+@using System.Globalization
 @model Client
 @{
-    var initials = string.IsNullOrEmpty(Model.Name) ? "?" : Model.Name.Trim()[..1].ToUpper();
-
-    string StatusBadge(ClientStatus s) => s switch
-    {
-        ClientStatus.Active => "bg-success",
-        ClientStatus.Inactive => "bg-secondary",
-        ClientStatus.Prospect => "bg-info text-dark",
-        _ => "bg-light text-dark"
-    };
-    string ContractBadge(ContractStatus s) => s switch
-    {
-        ContractStatus.Active => "bg-success",
-        ContractStatus.Expired => "bg-secondary",
-        ContractStatus.Cancelled => "bg-danger",
-        ContractStatus.Draft => "bg-warning text-dark",
-        _ => "bg-light text-dark"
-    };
+    var fr = CultureInfo.GetCultureInfo("fr-FR");
+    var look = Ui.Of(Model.Status);
+    var isAdmin = User.IsInRole("Admin");
+    var created = Model.CreatedAt.ToLocalTime();
+    var contracts = Model.Contracts
+        .OrderBy(c => c.Status == ContractStatus.Active ? 0 : c.Status == ContractStatus.Draft ? 1 : 2)
+        .ThenBy(c => c.EndDate)
+        .ToList();
+    var activeCount = contracts.Count(c => c.Status == ContractStatus.Active);
+    var activeValue = contracts.Where(c => c.Status == ContractStatus.Active).Sum(c => c.Amount);
 }
 
-<div class="detail-header">
-    <div class="detail-avatar">@initials</div>
+<div class="profile">
+    <span class="avatar avatar--xl" data-hue="@Ui.Hue(Model.Name)" aria-hidden="true">@Ui.Initials(Model.Name)</span>
     <div class="min-w-0">
-        <h4 class="text-truncate">@Model.Name</h4>
-        <span class="badge @StatusBadge(Model.Status)">@Model.Status</span>
+        <h3 class="profile__name">@Model.Name</h3>
+        <div class="profile__meta">
+            <span class="status" data-tone="@look.Tone"><i class="bi @look.Icon" aria-hidden="true"></i>@look.Label</span>
+            <span class="chip">Client depuis @created.ToString("MMMM yyyy", fr)</span>
+        </div>
     </div>
 </div>
 
-<div class="detail-list">
-    <div class="detail-row">
-        <span class="detail-label"><i class="bi bi-envelope"></i> Email</span>
-        <span class="detail-value"><a href="mailto:@Model.Email">@Model.Email</a></span>
+<div class="facts" data-reveal-group>
+    <div class="fact fact--wide" data-reveal>
+        <span class="fact__label"><i class="bi bi-envelope" aria-hidden="true"></i> Email</span>
+        <span class="fact__value">
+            <a class="truncate" href="mailto:@Model.Email">@Model.Email</a>
+            <button type="button" class="icon-btn copy-btn" data-copy="@Model.Email" data-copy-label="Adresse email copiée."
+                    aria-label="Copier l'adresse email" data-tip="Copier"><i class="bi bi-copy" aria-hidden="true"></i></button>
+        </span>
     </div>
-    <div class="detail-row">
-        <span class="detail-label"><i class="bi bi-briefcase"></i> Secteur</span>
-        <span class="detail-value">@(string.IsNullOrEmpty(Model.Sector) ? "Non renseigné" : Model.Sector)</span>
+    <div class="fact" data-reveal>
+        <span class="fact__label"><i class="bi bi-briefcase" aria-hidden="true"></i> Secteur</span>
+        <span class="fact__value">@(string.IsNullOrEmpty(Model.Sector) ? "Non renseigné" : Model.Sector)</span>
     </div>
-    <div class="detail-row">
-        <span class="detail-label"><i class="bi bi-calendar3"></i> Créé le</span>
-        <span class="detail-value">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</span>
+    <div class="fact" data-reveal>
+        <span class="fact__label"><i class="bi bi-calendar3" aria-hidden="true"></i> Ajouté le</span>
+        <span class="fact__value">@Ui.Date(created)</span>
     </div>
-    <div class="detail-row">
-        <span class="detail-label"><i class="bi bi-file-earmark-text"></i> Contrats</span>
-        <span class="detail-value">@Model.Contracts.Count</span>
+    <div class="fact" data-reveal>
+        <span class="fact__label"><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Contrats</span>
+        <span class="fact__value fact__value--big">@contracts.Count</span>
+        <span class="fact__label">dont @Ui.Plural(activeCount, "actif", "actifs")</span>
+    </div>
+    <div class="fact" data-reveal>
+        <span class="fact__label"><i class="bi bi-cash-stack" aria-hidden="true"></i> Valeur active</span>
+        <span class="fact__value fact__value--big">@Ui.Money(activeValue)</span>
+        <span class="fact__label">contrats en cours</span>
     </div>
 </div>
 
-<p class="detail-section-title">Contrats associés</p>
-@if (!Model.Contracts.Any())
+<h4 class="section-title">Contrats associés <span class="chip">@contracts.Count</span></h4>
+@if (!contracts.Any())
 {
-    <p class="detail-empty">Aucun contrat associé.</p>
+    <div class="empty" style="padding-block: var(--space-6)">
+        <div class="empty__icon"><i class="bi bi-file-earmark-plus" aria-hidden="true"></i></div>
+        <p class="empty__title">Aucun contrat</p>
+        <p class="empty__text">Ce client n'a pas encore de contrat rattaché.</p>
+    </div>
 }
 else
 {
-    foreach (var ct in Model.Contracts)
-    {
-        <div class="detail-contract">
-            <div class="min-w-0">
-                <div class="dc-title text-truncate">@ct.Title</div>
-                <div class="dc-sub">@ct.StartDate.ToString("dd/MM/yyyy") → @ct.EndDate.ToString("dd/MM/yyyy")</div>
-            </div>
-            <div class="text-end" style="white-space:nowrap;">
-                <div class="fw-semibold">@ct.Amount.ToString("N2") €</div>
-                <span class="badge @ContractBadge(ct.Status)">@ct.Status</span>
-            </div>
-        </div>
-    }
+    <ul class="stack-list" role="list" data-reveal-group>
+        @foreach (var ct in contracts)
+        {
+            var ctLook = Ui.Of(ct.Status);
+            <li class="contract-card" data-reveal>
+                <div class="contract-card__top">
+                    <div class="cell-main__text">
+                        <button type="button" class="cell-link" data-panel-url="@Url.Action("Details", "Contract", new { id = ct.Id })" data-title="Fiche contrat">@ct.Title</button>
+                        <span class="cell-sub">@Ui.Date(ct.StartDate) → @Ui.Date(ct.EndDate)</span>
+                    </div>
+                    <div class="mini-row__end">
+                        <span class="amount">@Ui.Money(ct.Amount)</span>
+                        <span class="status" data-tone="@ctLook.Tone"><i class="bi @ctLook.Icon" aria-hidden="true"></i>@ctLook.Label</span>
+                    </div>
+                </div>
+                <partial name="_Lifespan" model="ct" />
+            </li>
+        }
+    </ul>
 }
+
+<div class="form-actions">
+    @if (isAdmin)
+    {
+        <button type="button" class="btn btn--ghost" data-modal-url="@Url.Action("Delete", "Client", new { id = Model.Id })" data-title="">
+            <i class="bi bi-trash3" aria-hidden="true"></i> Supprimer
+        </button>
+        <button type="button" class="btn btn--primary" data-panel-url="@Url.Action("Edit", "Client", new { id = Model.Id })" data-title="Modifier le client">
+            <i class="bi bi-pencil" aria-hidden="true"></i> Modifier la fiche
+        </button>
+    }
+    else
+    {
+        <p class="readonly-note"><i class="bi bi-lock" aria-hidden="true"></i> Lecture seule : la modification est réservée aux administrateurs.</p>
+    }
+</div>

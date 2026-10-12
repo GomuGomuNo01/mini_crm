@@ -37,10 +37,13 @@ public class DashboardController : Controller
         var vm = new DashboardViewModel
         {
             TotalActiveClients = await _context.Clients.CountAsync(c => c.Status == ClientStatus.Active),
+            ProspectClients = await _context.Clients.CountAsync(c => c.Status == ClientStatus.Prospect),
             TotalActiveContracts = activeContracts.Count,
             ContractsExpiringSoon = expiring.Count,
             TotalContractValue = activeContracts.Sum(c => c.Amount),
+            OverdueActiveContracts = activeContracts.Count(c => c.EndDate < now),
             ExpiringContracts = expiring.Take(5).ToList(),
+            RecentContracts = contracts.OrderByDescending(c => c.StartDate).ThenByDescending(c => c.Id).Take(5).ToList(),
             ContractsByStatus = Enum.GetValues<ContractStatus>()
                 .ToDictionary(
                     s => s.ToString(),

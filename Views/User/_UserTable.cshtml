@@ -1,56 +1,64 @@
 @model List<MiniCrm.ViewModels.UserListItem>
+@{
+    var admins = Model.Count(u => u.Role == "Admin");
+}
 
-<p class="text-muted mb-2 small">@Model.Count utilisateur@(Model.Count > 1 ? "s" : "")</p>
+<p class="list-meta">
+    <span data-count><strong>@Ui.Plural(Model.Count, "compte", "comptes")</strong> · @Ui.Plural(admins, "administrateur", "administrateurs")</span>
+</p>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead>
-            <tr>
-                <th>Email</th>
-                <th>Rôle</th>
-                <th class="text-end">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            @if (!Model.Any())
-            {
-                <tr><td colspan="3"><div class="empty-state"><i class="bi bi-people"></i>Aucun utilisateur.</div></td></tr>
-            }
-            @foreach (var u in Model)
-            {
-                <tr>
-                    <td class="fw-semibold">
-                        @u.Email
-                        @if (u.IsCurrentUser)
-                        {
-                            <span class="badge bg-secondary ms-1">vous</span>
-                        }
-                    </td>
-                    <td>
-                        @if (u.Role == "Admin")
-                        {
-                            <span class="badge bg-primary">Admin</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">User</span>
-                        }
-                    </td>
-                    <td class="text-end">
-                        @if (u.IsCurrentUser)
-                        {
-                            <span class="text-muted small">Compte actuel</span>
-                        }
-                        else
-                        {
-                            <button type="button" class="btn btn-sm btn-outline-danger" title="Supprimer"
-                                    data-modal-url="@Url.Action("Delete", new { id = u.Id })" data-title=""><i class="bi bi-trash"></i></button>
-                        }
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+@if (!Model.Any())
+{
+    <div class="panel">
+        <div class="empty">
+            <div class="empty__icon"><i class="bi bi-people" aria-hidden="true"></i></div>
+            <p class="empty__title">Aucun utilisateur</p>
+            <p class="empty__text">Créez un premier accès pour votre équipe.</p>
+        </div>
     </div>
-</div>
+}
+else
+{
+    <ul class="user-grid" role="list" data-reveal-group>
+        @foreach (var u in Model)
+        {
+            var isAdminRole = u.Role == "Admin";
+            <li class="panel panel--interactive user-card @(u.IsCurrentUser ? "is-self" : "")" data-reveal>
+                <div class="user-card__top">
+                    <span class="avatar avatar--lg avatar--round" data-hue="@Ui.Hue(u.Email)" aria-hidden="true">@Ui.Initials(u.Email)</span>
+                    <div class="min-w-0">
+                        <p class="user-card__email truncate" title="@u.Email">@u.Email</p>
+                        @if (u.IsCurrentUser)
+                        {
+                            <span class="chip chip--brand">C'est vous</span>
+                        }
+                    </div>
+                </div>
+                <div class="user-card__foot">
+                    @if (isAdminRole)
+                    {
+                        <span class="status" data-tone="info"><i class="bi bi-shield-check" aria-hidden="true"></i>Administrateur</span>
+                    }
+                    else if (u.Role == "User")
+                    {
+                        <span class="status" data-tone="neutral"><i class="bi bi-eye" aria-hidden="true"></i>Lecture seule</span>
+                    }
+                    else
+                    {
+                        <span class="status" data-tone="warning"><i class="bi bi-question-circle" aria-hidden="true"></i>@u.Role</span>
+                    }
+
+                    @if (u.IsCurrentUser)
+                    {
+                        <span class="muted" style="font-size:var(--text-xs)">Compte actuel</span>
+                    }
+                    else
+                    {
+                        <button type="button" class="icon-btn icon-btn--danger" data-modal-url="@Url.Action("Delete", new { id = u.Id })" data-title=""
+                                aria-label="Supprimer le compte @u.Email" data-tip="Supprimer"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+                    }
+                </div>
+            </li>
+        }
+    </ul>
+}

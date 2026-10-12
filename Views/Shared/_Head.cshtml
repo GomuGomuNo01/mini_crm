@@ -1,0 +1,46 @@
+@{
+    var title = ViewData["Title"] as string;
+    var description = ViewData["Description"] as string
+        ?? "Mini-CRM : vos clients, vos contrats et leurs échéances réunis dans un espace clair, avec un journal d'audit automatique.";
+}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>@(string.IsNullOrEmpty(title) ? "Mini-CRM" : $"{title} · Mini-CRM")</title>
+<meta name="description" content="@description" />
+<meta name="color-scheme" content="light dark" />
+<meta name="theme-color" content="#f7f5fa" />
+
+@* Thème appliqué avant le premier rendu (pas de flash) + drapeau .js pour le motion.
+   Filet de sécurité : si les scripts ne se chargent pas, le contenu révélé au
+   scroll redevient visible après 2,5 s. *@
+<script>
+    (function () {
+        var d = document.documentElement;
+        try {
+            var t = localStorage.getItem('mc-theme');
+            if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            d.setAttribute('data-theme', t);
+            var m = document.querySelector('meta[name="theme-color"]');
+            if (m) m.content = t === 'dark' ? '#110c16' : '#f7f5fa';
+        } catch (e) { }
+        d.classList.add('js');
+        setTimeout(function () { if (!window.MC) d.classList.remove('js'); }, 2500);
+        // Une transition de page peut être sautée (onglet masqué, clic rapide) : sans gravité.
+        var calm = function (e) {
+            var vt = e.viewTransition;
+            if (vt) ['ready', 'finished', 'updateCallbackDone'].forEach(function (k) { if (vt[k]) vt[k].catch(function () { }); });
+        };
+        window.addEventListener('pagereveal', calm);
+        window.addEventListener('pageswap', calm);
+    })();
+</script>
+
+<link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+<link rel="alternate icon" href="~/favicon.ico" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:ital,wght@0,400..700;1,400..700&display=swap" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+<link rel="stylesheet" href="~/css/tokens.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />

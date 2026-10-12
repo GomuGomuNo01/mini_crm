@@ -1,0 +1,18 @@
+@* Gabarit des pages publiques (vitrine, connexion) : mêmes tokens et même
+   motion que l'application, sans la navigation applicative. *@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <partial name="_Head" />
+    <link rel="stylesheet" href="~/css/public.css" asp-append-version="true" />
+</head>
+<body class="is-public">
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+@RenderBody()
+<div class="toaster" id="toaster" role="region" aria-label="Notifications"></div>
+<script src="~/js/core.js" asp-append-version="true"></script>
+<script src="~/js/app.js" asp-append-version="true"></script>
+<script src="~/js/public.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
