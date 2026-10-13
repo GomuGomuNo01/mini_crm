@@ -25,3 +25,8 @@ appsettings.*.Local.json
 
 ## ngrok (contient le authtoken secret)
 ngrok.yml
+
+## Vidéo de présentation : fichiers de travail du générateur
+assets/video/source/.build/
+assets/video/source/__pycache__/
+assets/video/source/apercu*

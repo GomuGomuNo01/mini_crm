@@ -1,0 +1,47 @@
+name: Deploy Présentation → GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "assets/video/**"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:   # déclenchement manuel possible
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
+      - name: Assemble site (page de présentation)
+        run: |
+          mkdir -p _site/presentation
+          cp assets/video/index.html assets/video/MiniCrm_presentation.mp4 assets/video/presentation-poster.jpg assets/video/musique.mp3 _site/presentation/
+          printf '%s\n' '<!doctype html>' '<html lang="fr"><head><meta charset="utf-8">' '<title>Mini-CRM</title>' '<meta http-equiv="refresh" content="0; url=./presentation/"></head>' '<body style="background:#f6f3f8;color:#4a4058;font-family:system-ui,sans-serif;padding:40px">' '<p><a href="./presentation/" style="color:#6a2479">Voir la présentation vidéo de Mini-CRM</a></p>' '</body></html>' > _site/index.html
+
+      - name: Upload site as Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

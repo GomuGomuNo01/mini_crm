@@ -10,12 +10,15 @@
 
 Application web de **gestion de clients et de contrats** : un portefeuille clients, des contrats rattachés avec leur montant et leur période, un tableau de bord qui **fait remonter les échéances à 30 jours**, des rôles Administrateur / Lecture seule et un **journal d'audit qui consigne automatiquement chaque modification**, champ par champ. Le tout dans une interface conçue comme un produit fini : identité visuelle propre, animations sobres, responsive du smartphone au grand écran, accessible au clavier.
 
+[![Voir la présentation](https://img.shields.io/badge/Voir%20la%20pr%C3%A9sentation-vid%C3%A9o%20de%2060%20s-ff7a59?style=for-the-badge&labelColor=1d1426)](https://gomugomuno01.github.io/mini_crm/presentation/)
 [![Voir les écrans](https://img.shields.io/badge/Voir%20les%20%C3%A9crans-captures%20de%20l'application-6a2479?style=for-the-badge&labelColor=1d1426)](#9-les-écrans)
-[![Lancer en local](https://img.shields.io/badge/Lancer%20en%20local-.NET%2010%20%2B%20WAMP-ff7a59?style=for-the-badge&labelColor=1d1426)](#14-reproduire-le-projet)
+[![Lancer en local](https://img.shields.io/badge/Lancer%20en%20local-.NET%2010%20%2B%20WAMP-6a2479?style=for-the-badge&labelColor=1d1426)](#14-reproduire-le-projet)
 
-![Page d'accueil de Mini-CRM](docs/images/accueil.png)
+*Présentation : le projet, son fonctionnement et ses avantages en 60 secondes, sur une musique originale. Écrans : l'application en captures, du tableau de bord au journal d'audit, sur ordinateur et sur mobile.*
 
-*La vitrine publique (« / » pour un visiteur non connecté) : la proposition de valeur, l'accès à l'espace et un aperçu du produit dont les calques réagissent légèrement au curseur. Chaque contrat y montre sa durée de vie, du début à la fin, avec le repère « aujourd'hui ».*
+[![Présentation vidéo de Mini-CRM, 60 secondes](assets/video/presentation-poster.jpg)](https://gomugomuno01.github.io/mini_crm/presentation/)
+
+*La présentation vidéo (60 s, 1080p, avec le son) : cliquer sur l'image pour la regarder dans la page « Présentation » publiée sur GitHub Pages. Elle déroule le constat (tableurs, post-it, contrat découvert expiré), la solution, le parcours d'un client jusqu'à l'alerte d'échéance, le journal d'audit, les avantages et les chiffres clés. Toute la vidéo est un « contrat de 60 secondes » : un fil du temps la traverse et un compte à rebours mène à son renouvellement. Elle a été composée en HTML et animée image par image ; sa musique a été synthétisée spécialement pour elle et calée sur chaque scène, sans aucun droit à céder.*
 
 ---
 
@@ -72,7 +75,7 @@ Dans une petite structure commerciale, les clients vivent dans un tableur, les c
 
 ### Pour découvrir le travail en 2 minutes
 
-1. Regarder [les écrans](#9-les-écrans).
+1. Regarder la [présentation vidéo](https://gomugomuno01.github.io/mini_crm/presentation/) (60 s), puis [les écrans](#9-les-écrans).
 2. Lancer l'application ([section 14](#14-reproduire-le-projet)) et se connecter avec le bouton **Administrateur** de l'écran de connexion.
 3. Sur le **tableau de bord**, survoler la légende de l'anneau pour isoler un statut.
 4. Dans **Contrats**, filtrer par statut et observer la barre de durée de vie de chaque contrat.
@@ -99,6 +102,9 @@ Dans une petite structure commerciale, les clients vivent dans un tableur, les c
 | Données de démonstration | [Data/SeedData.cs](Data/SeedData.cs) |
 | Tests unitaires (78) | [MiniCrm.Tests/](MiniCrm.Tests/) |
 | Captures de l'application | [docs/images/](docs/images/) |
+| Présentation vidéo (60 s, musique originale libre de droits) | [Voir la présentation](https://gomugomuno01.github.io/mini_crm/presentation/) |
+| Musique originale de la vidéo (MP3, libre de droits) | [musique.mp3](assets/video/musique.mp3) |
+| Générateur de la vidéo et de la musique (HTML, Python) | [assets/video/source/](assets/video/source/) |
 
 ## 3. Contexte et objectifs
 
@@ -271,20 +277,21 @@ Les tests utilisent le provider **EF Core InMemory** : ils tournent sans MySQL. 
 
 ## 9. Les écrans
 
-| Tableau de bord | Fiche client |
+| Vitrine publique | Récit au défilement (vitrine) |
 |---|---|
+| ![Page d'accueil de Mini-CRM](docs/images/accueil.png) | ![Récit du parcours client sur la vitrine](docs/images/accueil-recit.png) |
+| **Tableau de bord** | **Fiche client** |
 | ![Tableau de bord](docs/images/tableau-de-bord.png) | ![Fiche client dans le tiroir latéral](docs/images/fiche-client.png) |
 | **Contrats** | **Formulaire et validation** |
 | ![Liste des contrats](docs/images/contrats.png) | ![Création de contrat avec erreurs de validation](docs/images/formulaire.png) |
 | **Journal d'audit** | **Thème sombre** |
 | ![Journal d'audit](docs/images/audit.png) | ![Tableau de bord en thème sombre](docs/images/sombre.png) |
-| **Connexion** | **Récit au défilement (vitrine)** |
-| ![Page de connexion](docs/images/connexion.png) | ![Récit du parcours client sur la vitrine](docs/images/accueil-recit.png) |
 
-| Mobile : tableau de bord | Mobile : contrats |
-|---|---|
-| ![Tableau de bord sur mobile](docs/images/mobile-accueil.png) | ![Contrats sur mobile](docs/images/mobile.png) |
+| Connexion | Mobile : tableau de bord | Mobile : contrats |
+|---|---|---|
+| ![Page de connexion](docs/images/connexion.png) | ![Tableau de bord sur mobile](docs/images/mobile-accueil.png) | ![Contrats sur mobile](docs/images/mobile.png) |
 
+- **Vitrine publique** (« / » pour un visiteur non connecté) : la proposition de valeur, l'accès à l'espace et un aperçu du produit dont les calques réagissent légèrement au curseur ; plus bas, un récit au défilement suit la vie d'un client jusqu'au renouvellement.
 - **Tableau de bord** : la valeur des contrats actifs, les clients et contrats actifs, les échéances à 30 jours, l'alerte des contrats actifs échus, l'anneau de répartition (survoler la légende isole un statut) et les derniers contrats.
 - **Fiche client** : coordonnées (email copiable), secteur, valeur active, contrats associés avec leur durée de vie ; les actions restent collées en bas du panneau.
 - **Contrats** : recherche, filtres par statut, barre de durée de vie, export CSV ; sur mobile, chaque ligne devient une carte.
@@ -413,6 +420,10 @@ MiniCrm/
 │   ├── css/                         tokens · base · components · app · public
 │   └── js/                          core (thème, fenêtres, notifications, motion) · app (formulaires, CRUD) · public
 ├── docs/images/                     Captures de l'application
+├── assets/video/                    Présentation vidéo (MP4), son affiche, sa musique et sa page web
+│   └── source/                      Générateur : composition HTML, moteur d'animation, musique, rendu
+├── .github/workflows/
+│   └── deploy-pages.yml             Publie la page de présentation sur GitHub Pages
 └── MiniCrm.Tests/                   Tests unitaires xUnit (services, audit, modèles, helpers)
 ```
 
@@ -497,5 +508,6 @@ dotnet build                                # compiler sans lancer
 - Polices de l'interface : [Instrument Serif](https://fonts.google.com/specimen/Instrument+Serif) et [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) (SIL Open Font License).
 - Icônes : [Bootstrap Icons](https://icons.getbootstrap.com) (licence MIT).
 - Bibliothèques : ASP.NET Core, Entity Framework Core, MySql.EntityFrameworkCore, ASP.NET Core Identity, xUnit.
+- Vidéo de présentation : composée en HTML et CSS (charte « Échéance », propre à cette vidéo), animée image par image et capturée par Chrome sans interface, encodée avec ffmpeg ; musique composée et synthétisée pour le projet par [`music.py`](assets/video/source/music.py), sans aucun échantillon externe, libre de droits. Le générateur et sa documentation sont dans [`assets/video/source/`](assets/video/source/).
 
 **Auteur :** Dibie Elisee Jules Cedric KOUADIO ([@GomuGomuNo01](https://github.com/GomuGomuNo01)), projet réalisé dans le cadre d'un entretien technique (Sokhar).

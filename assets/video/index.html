@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mini-CRM : présentation vidéo</title>
+  <meta name="description" content="Mini-CRM en 60 secondes : clients et contrats réunis, échéances anticipées, journal d'audit automatique. Une vidéo animée image par image sur une musique originale.">
+  <meta name="theme-color" content="#f6f3f8">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%236a2479'/><stop offset='.52' stop-color='%23a23a8c'/><stop offset='1' stop-color='%23ff7a59'/></linearGradient></defs><rect width='32' height='32' rx='9' fill='url(%23g)'/><circle cx='12.5' cy='16' r='4.25' fill='%23fff'/><path d='M18.5 8.75a8.5 8.5 0 0 1 0 14.5' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap">
+  <style>
+    :root {
+      --bg: #f6f3f8;
+      --surface: #ffffff;
+      --ink: #1d1426;
+      --ink-2: #4a4058;
+      --ink-3: #6e6480;
+      --line: rgba(45, 20, 60, 0.12);
+      --plum: #6a2479;
+      --coral: #ff7a59;
+      --coral-ink: #b23c1c;
+      --gradient: linear-gradient(135deg, #6a2479 0%, #a23a8c 52%, #ff7a59 100%);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 600px at 85% -10%, rgba(162, 58, 140, 0.16), transparent 60%),
+        radial-gradient(700px 500px at -10% 110%, rgba(255, 122, 89, 0.14), transparent 60%),
+        var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 16px 40px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); }
+    .mark { width: 44px; height: 44px; border-radius: 13px; background: var(--gradient); display: grid; place-items: center; box-shadow: 0 12px 26px -12px rgba(122, 46, 142, 0.8); }
+    .mark svg { width: 30px; height: 30px; }
+    .wordmark { font: 400 2rem/1 "Instrument Serif", Georgia, serif; }
+    .wordmark i { font-style: normal; color: var(--coral); }
+    .eyebrow { margin: 28px 0 10px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); display: flex; align-items: center; gap: 12px; }
+    .eyebrow::before { content: ""; width: 28px; height: 2px; background: var(--coral); border-radius: 2px; }
+    h1 { margin: 0; font: 400 clamp(2.4rem, 6vw, 4.2rem)/1 "Instrument Serif", Georgia, serif; letter-spacing: -0.015em; text-align: center; }
+    h1 em {
+      background: linear-gradient(100deg, #7a2e8e, #b8357f 55%, #e2553a);
+      -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: 0.06em;
+    }
+    p.lead { color: var(--ink-2); margin: 18px 0 32px; text-align: center; max-width: 760px; font-size: 1.06rem; line-height: 1.6; text-wrap: balance; }
+    .player {
+      width: 100%; max-width: 1120px;
+      border-radius: 22px; overflow: hidden; background: #170820;
+      border: 1px solid var(--line);
+      box-shadow: 0 40px 90px -30px rgba(40, 16, 52, 0.45), 0 14px 30px -14px rgba(40, 16, 52, 0.2);
+    }
+    video { display: block; width: 100%; height: auto; }
+    .chapters { list-style: none; margin: 22px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 1120px; }
+    .chapters button {
+      font: inherit; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line);
+      background: var(--surface); color: var(--ink-2);
+      transition: background-color .18s, color .18s, border-color .18s;
+    }
+    .chapters button b { color: var(--coral-ink); font-weight: 800; }
+    .chapters button:hover { border-color: rgba(45, 20, 60, 0.3); color: var(--ink); }
+    .chapters button[aria-current="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .chapters button[aria-current="true"] b { color: var(--coral); }
+    nav { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 30px; }
+    nav a {
+      color: var(--ink); text-decoration: none; padding: 13px 24px; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--surface); font-weight: 600;
+      transition: transform .12s, box-shadow .18s;
+    }
+    nav a:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -12px rgba(40, 16, 52, 0.35); }
+    nav a.primary { background: var(--plum); border-color: var(--plum); color: #fff; }
+    :focus-visible { outline: 2px solid #9346a9; outline-offset: 3px; }
+    footer { margin-top: 34px; max-width: 760px; text-align: center; color: var(--ink-3); font-size: 0.9rem; line-height: 1.6; }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <a class="brand" href="https://github.com/GomuGomuNo01/mini_crm" aria-label="Mini-CRM sur GitHub">
+    <span class="mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><circle cx="12.5" cy="16" r="4.25" fill="#fff"/><path d="M18.5 8.75a8.5 8.5 0 0 1 0 14.5" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><circle cx="23.6" cy="9.4" r="1.7" fill="#fff" opacity=".65"/></svg></span>
+    <span class="wordmark">mini<i>·</i>crm</span>
+  </a>
+  <p class="eyebrow">Présentation · 60 secondes</p>
+  <h1>Mini-CRM <em>en 60 secondes</em></h1>
+  <p class="lead">Clients et contrats réunis dans un seul espace, échéances repérées 30 jours à l'avance, chaque modification consignée automatiquement. Le son est activé&nbsp;: la musique a été composée pour la vidéo.</p>
+
+  <div class="player">
+    <video id="video" controls playsinline preload="metadata" poster="presentation-poster.jpg">
+      <source src="MiniCrm_presentation.mp4" type="video/mp4">
+      Votre navigateur ne lit pas cette vidéo : <a href="MiniCrm_presentation.mp4">la télécharger</a>.
+    </video>
+  </div>
+
+  <ul class="chapters" aria-label="Chapitres">
+    <li><button type="button" data-t="0"><b>01</b>Ouverture</button></li>
+    <li><button type="button" data-t="7.5"><b>02</b>Le constat</button></li>
+    <li><button type="button" data-t="15"><b>03</b>La solution</button></li>
+    <li><button type="button" data-t="22.5"><b>04</b>Comment ça marche</button></li>
+    <li><button type="button" data-t="35"><b>05</b>Tout est tracé</button></li>
+    <li><button type="button" data-t="42.5"><b>06</b>Les avantages</button></li>
+    <li><button type="button" data-t="50"><b>07</b>Sous le capot</button></li>
+    <li><button type="button" data-t="55"><b>08</b>À vous de jouer</button></li>
+  </ul>
+
+  <nav aria-label="Liens">
+    <a class="primary" href="https://github.com/GomuGomuNo01/mini_crm">Voir le projet sur GitHub</a>
+    <a href="https://github.com/GomuGomuNo01/mini_crm#9-les-écrans">Voir les écrans de l'application</a>
+    <a href="musique.mp3" download>Télécharger la musique (MP3)</a>
+  </nav>
+
+  <footer>
+    <p>Vidéo composée en HTML et CSS, animée image par image (1&nbsp;800 images capturées par Chrome sans interface), sur une musique originale synthétisée par le code (numpy)&nbsp;: aucun extrait, aucun échantillon, aucune banque d'images, donc aucun droit tiers. Polices Instrument Serif et Plus Jakarta Sans (SIL Open Font License), icônes Bootstrap Icons (MIT). Conçu et développé par Dibie Elisee Jules Cedric KOUADIO.</p>
+  </footer>
+
+  <script>
+    // Chapitres : saut au bon instant, et le chapitre en cours reste signalé
+    const video = document.getElementById('video');
+    const boutons = [...document.querySelectorAll('[data-t]')];
+    boutons.forEach((b) => b.addEventListener('click', () => {
+      video.currentTime = Number(b.dataset.t);
+      video.play().catch(() => {});
+    }));
+    video.addEventListener('timeupdate', () => {
+      let actif = boutons[0];
+      boutons.forEach((b) => { if (video.currentTime >= Number(b.dataset.t)) actif = b; });
+      boutons.forEach((b) => b.setAttribute('aria-current', String(b === actif)));
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mini-CRM · présentation (composition)</title>
+<!-- Polices sous licence SIL Open Font License, icônes Bootstrap Icons (MIT) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400..800&display=block">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="film.css">
+</head>
+<body>
+
+<!-- Logo : un point (le client) relié par un arc (la relation, le contrat) -->
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="logo" viewBox="0 0 32 32">
+    <circle cx="12.5" cy="16" r="4.25" fill="currentColor"/>
+    <path d="M18.5 8.75a8.5 8.5 0 0 1 0 14.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="23.6" cy="9.4" r="1.7" fill="currentColor" opacity=".65"/>
+  </symbol>
+</svg>
+
+<!-- ======================================================= 1. OUVERTURE -->
+<section class="scene light" id="s1">
+  <div class="blob plum" data-a id="s1-b1" style="width:1400px;height:1000px;left:880px;top:-460px"></div>
+  <div class="blob coral" data-a id="s1-b2" style="width:1100px;height:850px;left:-360px;top:520px"></div>
+
+  <div class="abs" data-a id="s1-line" style="left:260px;top:538px;width:1400px;height:4px;border-radius:4px;background:var(--prune)"></div>
+
+  <div class="abs" data-a id="s1-logo" style="left:0;top:0;display:flex;align-items:center;gap:59.2px;transform-origin:0 0">
+    <div class="mark" data-a id="s1-mark" style="width:220px;height:220px">
+      <svg viewBox="0 0 32 32" fill="none">
+        <circle cx="12.5" cy="16" r="4.25" fill="#fff"/>
+        <path id="s1-arc" d="M18.5 8.75a8.5 8.5 0 0 1 0 14.5" pathLength="1" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
+        <circle id="s1-spark" cx="23.6" cy="9.4" r="1.7" fill="#fff" opacity=".65"/>
+      </svg>
+    </div>
+    <div class="wordmark" id="s1-word" style="font-size:169.2px"></div>
+  </div>
+  <div class="abs" data-a id="s1-dot" style="left:0;top:0;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:var(--corail)"></div>
+
+  <h1 class="abs h-xl" id="s1-t1" style="left:0;width:1920px;top:300px;text-align:center"></h1>
+  <h1 class="abs h-xl" id="s1-t2" style="left:0;width:1920px;top:428px;text-align:center"></h1>
+  <p class="abs lead" data-a id="s1-sub" style="left:360px;width:1200px;top:640px;text-align:center">
+    Le CRM léger qui centralise clients et contrats, anticipe les échéances
+    et garde la trace de chaque modification.
+  </p>
+  <div class="abs" id="s1-chips" style="left:0;width:1920px;top:800px;display:flex;justify-content:center;gap:14px">
+    <span class="chip" data-a>ASP.NET Core MVC</span>
+    <span class="chip" data-a>.NET 10</span>
+    <span class="chip" data-a>Entity Framework Core</span>
+    <span class="chip" data-a>MySQL</span>
+    <span class="chip" data-a>HTML · CSS · JS</span>
+  </div>
+  <div class="abs play" id="poster-play" style="left:896px;top:790px;display:none"></div>
+</section>
+
+<!-- ======================================================= 2. LE CONSTAT -->
+<section class="scene dark" id="s2">
+  <div class="blob plum" data-a id="s2-b1" style="width:1300px;height:1000px;left:900px;top:-300px"></div>
+  <div class="blob coral" data-a id="s2-b2" style="width:900px;height:700px;left:-200px;top:600px"></div>
+
+  <p class="abs eyebrow" data-a id="s2-eye" style="left:120px;top:226px">Le constat</p>
+  <h2 class="abs h-l" style="left:120px;top:272px;width:900px">
+    <span class="line" data-a id="s2-l1">Des tableurs,</span>
+    <span class="line" data-a id="s2-l2">des post-it,</span>
+    <span class="line" data-a id="s2-l3"><span class="accent">et de la mémoire.</span></span>
+  </h2>
+  <p class="abs lead" data-a id="s2-sub" style="left:120px;top:640px;width:760px">
+    Les clients dans un fichier, les contrats dans un autre,
+    et les dates de fin dans la tête de quelqu'un.
+  </p>
+  <p class="abs serif" data-a id="s2-punch" style="left:120px;top:830px;font-size:60px;color:var(--corail)">Rien n'est relié. Rien n'est tracé.</p>
+
+  <div class="abs" data-a id="s2-cluster" style="left:0;top:0;width:1920px;height:1080px">
+    <div class="abs paper" data-a id="s2-xls1" style="left:1010px;top:176px;width:470px">
+      <div class="xls-head"><i class="bi bi-file-earmark-spreadsheet"></i>clients_v3_FINAL.xlsx</div>
+      <div class="xls-grid">
+        <div class="xls-row"><span></span><span></span><span></span></div>
+        <div class="xls-row"><span></span><span class="w"></span><span></span></div>
+        <div class="xls-row"><span></span><span></span><span></span></div>
+        <div class="xls-row"><span></span><span></span><span class="w"></span></div>
+        <div class="xls-row"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+    <div class="abs bubble" data-a id="s2-q" style="left:1440px;top:150px;width:390px"><i class="bi bi-chat-quote-fill"></i>Qui a passé ce client en inactif ?</div>
+    <div class="abs paper" data-a id="s2-xls2" style="left:1400px;top:404px;width:420px">
+      <div class="xls-head"><i class="bi bi-file-earmark-spreadsheet"></i>contrats_2026 (copie).xlsx</div>
+      <div class="xls-grid">
+        <div class="xls-row"><span></span><span></span><span class="w"></span></div>
+        <div class="xls-row"><span></span><span></span><span></span></div>
+        <div class="xls-row"><span class="w"></span><span></span><span></span></div>
+        <div class="xls-row"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+    <div class="abs sticky" data-a id="s2-note" style="left:1050px;top:500px;width:320px;height:250px">Renouveler TechNova…<br>avant quand ?</div>
+    <div class="abs cal" data-a id="s2-cal" style="left:1380px;top:690px;width:420px">
+      <div class="cal-top">Fin du contrat · TechNova</div>
+      <div class="cal-body"><span class="cal-date">16 juil.</span><span class="cal-j" id="s2-j">J-3</span></div>
+    </div>
+    <div class="abs stamp" data-a id="s2-stamp" style="left:1432px;top:752px">EXPIRÉ</div>
+    <p class="abs" data-a id="s2-late" style="left:1384px;top:906px;font:700 23px/1 var(--sans);color:var(--corail)">Découvert quand le client appelle.</p>
+  </div>
+</section>
+
+<!-- ======================================================= 3. LA SOLUTION -->
+<section class="scene light" id="s3">
+  <div class="blob plum" data-a id="s3-b1" style="width:1300px;height:1000px;left:800px;top:-420px"></div>
+  <div class="blob coral" data-a id="s3-b2" style="width:1000px;height:800px;left:-300px;top:560px"></div>
+
+  <p class="abs eyebrow" data-a id="s3-eye" style="left:120px;top:206px">La solution</p>
+  <h2 class="abs h-l" style="left:120px;top:252px">
+    <span class="line" data-a id="s3-l1">Un seul espace.</span>
+    <span class="line" data-a id="s3-l2"><span class="accent">Tout est relié.</span></span>
+  </h2>
+
+  <div class="abs pillar" data-a id="s3-p1" style="left:120px;top:530px;width:720px">
+    <span class="icon-tile" data-tone="info"><i class="bi bi-people"></i></span>
+    <div><p class="t">Clients</p><p class="d">Fiche, secteur, statut et contrats associés.</p></div>
+  </div>
+  <div class="abs pillar" data-a id="s3-p2" style="left:120px;top:660px;width:720px">
+    <span class="icon-tile" data-tone="success"><i class="bi bi-file-earmark-text"></i></span>
+    <div><p class="t">Contrats</p><p class="d">Montant, période, statut et durée de vie.</p></div>
+  </div>
+  <div class="abs pillar" data-a id="s3-p3" style="left:120px;top:790px;width:720px">
+    <span class="icon-tile" data-tone="alert"><i class="bi bi-alarm"></i></span>
+    <div><p class="t">Échéances</p><p class="d">Repérées 30 jours avant la fin du contrat.</p></div>
+  </div>
+
+  <div class="abs card app" data-a id="s3-app" style="left:900px;top:196px;width:900px;height:640px">
+    <div class="app-dock">
+      <div class="mark"><svg fill="none"><use href="#logo" color="#fff"/></svg></div>
+      <div class="app-nav on"><i class="bi bi-grid-1x2-fill"></i>Tableau de bord</div>
+      <div class="app-nav"><i class="bi bi-people"></i>Clients</div>
+      <div class="app-nav"><i class="bi bi-file-earmark-text"></i>Contrats</div>
+      <div class="app-nav"><i class="bi bi-tags"></i>Secteurs</div>
+      <div class="app-nav"><i class="bi bi-shield-check"></i>Journal d'audit</div>
+    </div>
+    <div class="app-main">
+      <p class="app-hello" data-a id="s3-hello">Bonjour, <span class="accent">admin</span>.</p>
+      <div class="abs kpi feature" data-a id="s3-k1" style="left:32px;top:112px;width:226px;height:122px"><p class="v" id="s3-v1">80 800 €</p><p class="k">Valeur des contrats actifs</p></div>
+      <div class="abs kpi" data-a id="s3-k2" style="left:268px;top:112px;width:128px;height:122px"><p class="v" id="s3-v2">9</p><p class="k">Clients actifs</p></div>
+      <div class="abs kpi" data-a id="s3-k3" style="left:406px;top:112px;width:128px;height:122px"><p class="v" id="s3-v3">13</p><p class="k">Contrats actifs</p></div>
+      <div class="abs kpi" data-a id="s3-k4" style="left:544px;top:112px;width:128px;height:122px"><p class="v" id="s3-v4" style="color:var(--corail-fonce)">3</p><p class="k">Échéances &lt; 30 j</p></div>
+      <div class="abs mini-panel" data-a id="s3-donut" style="left:32px;top:252px;width:250px;height:350px">
+        <p class="mini-title">Répartition</p>
+        <svg viewBox="0 0 120 120" style="width:190px;height:190px;margin:6px auto 0;display:block;transform:rotate(-90deg)">
+          <circle cx="60" cy="60" r="46" fill="none" stroke="#ece6f1" stroke-width="14"/>
+          <circle class="seg" cx="60" cy="60" r="46" fill="none" stroke="#13a06b" stroke-width="14" pathLength="100" data-len="64" data-off="0"/>
+          <circle class="seg" cx="60" cy="60" r="46" fill="none" stroke="#8b8399" stroke-width="14" pathLength="100" data-len="14" data-off="65"/>
+          <circle class="seg" cx="60" cy="60" r="46" fill="none" stroke="#d93a5b" stroke-width="14" pathLength="100" data-len="9" data-off="80"/>
+          <circle class="seg" cx="60" cy="60" r="46" fill="none" stroke="#e59a1c" stroke-width="14" pathLength="100" data-len="9" data-off="90"/>
+        </svg>
+        <p class="serif" style="position:absolute;left:0;right:0;top:142px;text-align:center;font-size:52px">20</p>
+        <p style="text-align:center;font:600 15px var(--sans);color:var(--encre-3);margin-top:16px">contrats</p>
+      </div>
+      <div class="abs mini-panel" data-a id="s3-due" style="left:292px;top:252px;width:380px;height:350px">
+        <p class="mini-title"><i class="bi bi-alarm" style="color:var(--corail-fonce)"></i> Échéances à venir</p>
+        <div data-a id="s3-r1" style="margin-top:20px">
+          <p style="font:700 17px var(--sans)">Maintenance site web</p>
+          <div class="life-track" style="height:7px;margin-top:10px"><div class="life-fill" id="s3-f1" style="background:var(--corail);width:96%"></div></div>
+          <p style="font:700 14px var(--sans);color:#a8391a;margin-top:8px">Expire dans 12 jours</p>
+        </div>
+        <div data-a id="s3-r2" style="margin-top:22px">
+          <p style="font:700 17px var(--sans)">Contrat support annuel</p>
+          <div class="life-track" style="height:7px;margin-top:10px"><div class="life-fill" id="s3-f2" style="background:var(--corail);width:94%"></div></div>
+          <p style="font:700 14px var(--sans);color:#a8391a;margin-top:8px">Expire dans 20 jours</p>
+        </div>
+        <div data-a id="s3-r3" style="margin-top:22px">
+          <p style="font:700 17px var(--sans)">Hébergement cloud</p>
+          <div class="life-track" style="height:7px;margin-top:10px"><div class="life-fill" id="s3-f3" style="background:var(--corail);width:92%"></div></div>
+          <p style="font:700 14px var(--sans);color:#a8391a;margin-top:8px">Expire dans 28 jours</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================= 4. COMMENT ÇA MARCHE -->
+<section class="scene lilac" id="s4">
+  <div class="blob plum" data-a id="s4-b1" style="width:1300px;height:1000px;left:900px;top:-380px"></div>
+  <div class="blob coral" data-a id="s4-b2" style="width:1000px;height:800px;left:-300px;top:600px"></div>
+
+  <p class="abs eyebrow" data-a id="s4-eye" style="left:120px;top:166px">Comment ça marche</p>
+  <h2 class="abs h-m" data-a id="s4-h" style="left:120px;top:206px;white-space:nowrap">Du premier contact au <span class="accent">renouvellement.</span></h2>
+
+  <div class="abs" id="s4-rail" style="left:154px;top:430px;width:3px;height:340px;border-radius:3px;background:rgba(29,20,38,.14)">
+    <div id="s4-railfill" style="position:absolute;left:0;top:0;width:3px;height:340px;border-radius:3px;background:var(--prune);transform-origin:50% 0"></div>
+  </div>
+  <div class="abs step" data-a id="s4-st1" style="left:120px;top:390px"><span class="num">1</span><div><p class="t">Ajoutez un client</p><p class="d">Nom, email, secteur d'activité et statut.</p></div></div>
+  <div class="abs step" data-a id="s4-st2" style="left:120px;top:560px"><span class="num">2</span><div><p class="t">Rattachez un contrat</p><p class="d">Montant et période : sa durée de vie s'affiche aussitôt.</p></div></div>
+  <div class="abs step" data-a id="s4-st3" style="left:120px;top:730px"><span class="num">3</span><div><p class="t">Voyez venir l'échéance</p><p class="d">À 30 jours de la fin, le contrat passe en alerte.</p></div></div>
+
+  <div class="abs card" data-a id="s4-client" style="left:900px;top:380px;width:900px;height:220px">
+    <div class="abs avatar hue-3" data-a id="s4-av" style="left:34px;top:46px;width:120px;height:120px;font-size:44px">SP</div>
+    <p class="abs field-label" style="left:190px;top:40px">Nouveau client</p>
+    <p class="abs typed" style="left:190px;top:70px"><span id="s4-name"></span><span class="caret" id="s4-c1"></span></p>
+    <p class="abs typed small" style="left:190px;top:124px"><span id="s4-mail"></span><span class="caret" id="s4-c2"></span></p>
+    <div class="abs" style="right:34px;top:40px;display:flex;flex-direction:column;align-items:flex-end;gap:14px">
+      <span class="pill" data-a id="s4-sector" data-tone="neutral"><i class="bi bi-briefcase"></i>Communication</span>
+      <span class="pill" data-a id="s4-status" data-tone="info"><i class="bi bi-stars"></i>Prospect</span>
+    </div>
+  </div>
+
+  <div class="abs card" data-a id="s4-contract" style="left:900px;top:640px;width:900px;height:250px">
+    <p class="abs field-label" style="left:36px;top:34px">Contrat · Studio Pixel</p>
+    <p class="abs" style="left:36px;top:62px;font:700 38px/1.1 var(--sans)">Refonte identité visuelle</p>
+    <p class="abs money" style="right:36px;top:30px" id="s4-amount">6 200 €</p>
+    <div class="abs" style="right:36px;top:110px;display:flex;gap:10px">
+      <span class="pill" data-a id="s4-soon" data-tone="alert"><i class="bi bi-alarm"></i>Expire bientôt</span>
+      <span class="pill" data-a id="s4-active" data-tone="success"><i class="bi bi-check2-circle"></i>Actif</span>
+    </div>
+    <div class="abs life" style="left:36px;top:170px;width:828px">
+      <div class="life-track"><div class="life-fill" id="s4-fill"></div><div class="life-now" id="s4-now"></div></div>
+      <div class="life-meta"><span class="c" id="s4-cap">10 mois restants</span><span class="d">1 nov. 2025 → 1 nov. 2026</span></div>
+    </div>
+  </div>
+
+  <div class="abs" data-a id="s4-count" style="left:900px;top:640px;width:460px">
+    <p class="bigcount" id="s4-j" style="color:var(--vert)">J-300</p>
+    <p style="font:700 20px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--encre-3);margin-top:44px">jours avant l'échéance</p>
+  </div>
+  <div class="abs card" data-a id="s4-alert" style="left:1380px;top:660px;width:420px;padding:26px 28px">
+    <div style="display:flex;align-items:center;gap:18px">
+      <span class="icon-tile" data-tone="alert" style="width:64px;height:64px;font-size:30px"><i class="bi bi-alarm"></i></span>
+      <div><p class="field-label">Tableau de bord</p><p style="font:700 26px/1.2 var(--sans);margin-top:8px">1 contrat expire sous 30 jours</p></div>
+    </div>
+  </div>
+  <p class="abs serif" data-a id="s4-final" style="left:120px;top:878px;font-size:50px"><span class="accent">Vous avez le temps de renouveler.</span></p>
+</section>
+
+<!-- ======================================================= 5. TOUT EST TRACÉ -->
+<section class="scene dark" id="s5">
+  <div class="blob plum" data-a id="s5-b1" style="width:1300px;height:1000px;left:-300px;top:-400px"></div>
+  <div class="blob coral" data-a id="s5-b2" style="width:900px;height:700px;left:1200px;top:640px"></div>
+
+  <p class="abs eyebrow" data-a id="s5-eye" style="left:120px;top:226px">Journal d'audit</p>
+  <h2 class="abs h-l" style="left:120px;top:272px">
+    <span class="line" data-a id="s5-l1">Chaque modification,</span>
+    <span class="line" data-a id="s5-l2"><span class="accent">consignée.</span></span>
+  </h2>
+  <p class="abs lead" data-a id="s5-sub" style="left:120px;top:540px;width:740px">
+    Qui, quand, et ce qui a changé : un intercepteur Entity Framework
+    enregistre tout, sans une ligne de code métier.
+  </p>
+  <p class="abs code" data-a id="s5-code" style="left:120px;top:740px"><b>SaveChanges()</b> &nbsp;→&nbsp; AuditLog &nbsp;·&nbsp; avant → après</p>
+
+  <span class="abs day-pill" data-a id="s5-day" style="left:1000px;top:170px">Aujourd'hui</span>
+  <div class="abs" data-a id="s5-vline" style="left:1029px;top:240px;width:2px;height:640px;background:rgba(255,255,255,.2);transform-origin:50% 0"></div>
+
+  <div class="abs ev" data-a id="s5-e1" style="left:1000px;top:240px;width:800px">
+    <span class="node" data-tone="success" data-a id="s5-n1"><i class="bi bi-plus-lg"></i></span>
+    <div class="card ev-card"><p class="ev-line"><b>admin</b> a créé le client <b>Studio Pixel</b></p>
+      <p class="ev-meta"><i class="bi bi-clock"></i>14:02<span class="tag">Administrateur</span><span class="tag">Client #19</span></p></div>
+  </div>
+  <div class="abs ev" data-a id="s5-e2" style="left:1000px;top:372px;width:800px">
+    <span class="node" data-tone="info" data-a id="s5-n2"><i class="bi bi-pencil"></i></span>
+    <div class="card ev-card"><p class="ev-line"><b>admin</b> a modifié le client <b>Studio Pixel</b></p>
+      <p class="ev-meta"><i class="bi bi-clock"></i>14:05<span class="tag">Administrateur</span><span class="tag">Client #19</span></p>
+      <div class="diff"><span class="f">Statut</span><span class="o">Prospect<i data-a id="s5-x2"></i></span><i class="bi bi-arrow-right"></i><span class="n" data-a id="s5-v2">Actif</span></div></div>
+  </div>
+  <div class="abs ev" data-a id="s5-e3" style="left:1000px;top:570px;width:800px">
+    <span class="node" data-tone="success" data-a id="s5-n3"><i class="bi bi-plus-lg"></i></span>
+    <div class="card ev-card"><p class="ev-line"><b>admin</b> a créé le contrat <b>Refonte identité visuelle</b></p>
+      <p class="ev-meta"><i class="bi bi-clock"></i>14:06<span class="tag">Administrateur</span><span class="tag">Contrat #21</span></p></div>
+  </div>
+  <div class="abs ev" data-a id="s5-e4" style="left:1000px;top:702px;width:800px">
+    <span class="node" data-tone="info" data-a id="s5-n4"><i class="bi bi-pencil"></i></span>
+    <div class="card ev-card"><p class="ev-line"><b>admin</b> a modifié le contrat <b>Refonte identité visuelle</b></p>
+      <p class="ev-meta"><i class="bi bi-clock"></i>14:09<span class="tag">Administrateur</span><span class="tag">Contrat #21</span></p>
+      <div class="diff"><span class="f">Montant</span><span class="o">5 800 €<i data-a id="s5-x4"></i></span><i class="bi bi-arrow-right"></i><span class="n" data-a id="s5-v4">6 200 €</span></div></div>
+  </div>
+</section>
+
+<!-- ======================================================= 6. LES AVANTAGES -->
+<section class="scene light" id="s6">
+  <div class="blob plum" data-a id="s6-b1" style="width:1400px;height:1000px;left:700px;top:-480px"></div>
+  <div class="blob coral" data-a id="s6-b2" style="width:1000px;height:800px;left:-320px;top:560px"></div>
+
+  <p class="abs eyebrow" data-a id="s6-eye" style="left:120px;top:166px">Les avantages</p>
+  <h2 class="abs h-m" data-a id="s6-h" style="left:120px;top:206px;white-space:nowrap">Tout l'essentiel, <span class="accent">rien de superflu.</span></h2>
+
+  <div class="abs card tile" data-a id="s6-t0" style="left:120px;top:362px"><i class="glow" data-a id="s6-g0"></i>
+    <div class="row"><span class="icon-tile" data-tone="alert"><i class="bi bi-alarm"></i></span><span class="token">J-30</span></div>
+    <p class="t">Échéances anticipées</p><p class="d">Compte à rebours 30 jours avant la fin, alerte sur les contrats échus.</p></div>
+  <div class="abs card tile" data-a id="s6-t1" style="left:690px;top:362px"><i class="glow" data-a id="s6-g1"></i>
+    <div class="row"><span class="icon-tile" data-tone="info"><i class="bi bi-shield-check"></i></span><span class="token">100 %</span></div>
+    <p class="t">Traçabilité automatique</p><p class="d">Chaque champ modifié, avant → après, avec l'auteur et l'heure.</p></div>
+  <div class="abs card tile" data-a id="s6-t2" style="left:1260px;top:362px"><i class="glow" data-a id="s6-g2"></i>
+    <div class="row"><span class="icon-tile" data-tone="neutral"><i class="bi bi-person-gear"></i></span><span class="token">2 rôles</span></div>
+    <p class="t">Rôles et accès</p><p class="d">Administrateur ou lecture seule, aucune inscription publique.</p></div>
+  <div class="abs card tile" data-a id="s6-t3" style="left:120px;top:642px"><i class="glow" data-a id="s6-g3"></i>
+    <div class="row"><span class="icon-tile" data-tone="success"><i class="bi bi-search"></i></span><span class="token">/</span></div>
+    <p class="t">Recherche instantanée</p><p class="d">Filtres par statut, raccourci clavier, export CSV protégé.</p></div>
+  <div class="abs card tile" data-a id="s6-t4" style="left:690px;top:642px"><i class="glow" data-a id="s6-g4"></i>
+    <div class="row"><span class="icon-tile" data-tone="info"><i class="bi bi-phone"></i></span><span class="token">3 écrans</span></div>
+    <p class="t">Partout, clair ou sombre</p><p class="d">Dock sur ordinateur, rail sur tablette, onglets sur mobile.</p></div>
+  <div class="abs card tile" data-a id="s6-t5" style="left:1260px;top:642px"><i class="glow" data-a id="s6-g5"></i>
+    <div class="row"><span class="icon-tile" data-tone="danger"><i class="bi bi-lock"></i></span><span class="token">5 essais</span></div>
+    <p class="t">Sécurisé par défaut</p><p class="d">Anti-CSRF, verrouillage après 5 échecs, en-têtes HTTP durcis.</p></div>
+</section>
+
+<!-- ======================================================= 7. SOUS LE CAPOT -->
+<section class="scene dark" id="s7">
+  <div class="blob plum" data-a id="s7-b1" style="width:1400px;height:1000px;left:300px;top:-520px"></div>
+  <div class="blob coral" data-a id="s7-b2" style="width:1000px;height:700px;left:500px;top:640px"></div>
+
+  <p class="abs eyebrow" data-a id="s7-eye" style="left:0;width:1920px;top:226px;justify-content:center">Sous le capot</p>
+  <h2 class="abs h-l" data-a id="s7-h" style="left:0;width:1920px;top:270px;text-align:center">Solide, <span class="accent">testé, documenté.</span></h2>
+
+  <div class="abs stat" data-a id="s7-c0" style="left:120px;top:470px"><p class="v" id="s7-v0">78</p><p class="k">tests unitaires</p></div>
+  <div class="abs stat" data-a id="s7-c1" style="left:540px;top:470px"><p class="v" id="s7-v1">30</p><p class="k">jours d'anticipation<br>sur chaque échéance</p></div>
+  <div class="abs stat" data-a id="s7-c2" style="left:960px;top:470px"><p class="v" id="s7-v2">100&#8239;<small>%</small></p><p class="k">des modifications<br>tracées</p></div>
+  <div class="abs stat" data-a id="s7-c3" style="left:1380px;top:470px"><p class="v" id="s7-v3">0</p><p class="k">framework front-end :<br>design system maison</p></div>
+  <span class="abs stat-sep" data-a id="s7-s0" style="left:540px;top:480px"></span>
+  <span class="abs stat-sep" data-a id="s7-s1" style="left:960px;top:480px"></span>
+  <span class="abs stat-sep" data-a id="s7-s2" style="left:1380px;top:480px"></span>
+
+  <div class="abs" id="s7-chips" style="left:0;width:1920px;top:850px;display:flex;justify-content:center;gap:14px">
+    <span class="chip" data-a>ASP.NET Core MVC</span><span class="chip" data-a>.NET 10</span><span class="chip" data-a>EF Core 10</span>
+    <span class="chip" data-a>MySQL</span><span class="chip" data-a>Identity</span><span class="chip" data-a>xUnit</span>
+  </div>
+</section>
+
+<!-- ======================================================= 8. À VOUS DE JOUER -->
+<section class="scene light" id="s8">
+  <div class="blob plum" data-a id="s8-b1" style="width:1500px;height:1100px;left:600px;top:-500px"></div>
+  <div class="blob coral" data-a id="s8-b2" style="width:1100px;height:850px;left:-360px;top:520px"></div>
+
+  <div class="abs" data-a id="s8-logo" style="left:0;width:1920px;top:178px;display:flex;justify-content:center;align-items:center;gap:26px">
+    <div class="mark" data-a id="s8-mark" style="width:104px;height:104px"><svg fill="none"><use href="#logo" color="#fff"/></svg></div>
+    <div class="wordmark" id="s8-word" style="font-size:80px"></div>
+  </div>
+  <h2 class="abs h-xl" style="left:0;width:1920px;top:360px;text-align:center">
+    <span class="line" data-a id="s8-l1">Reprenez la main sur</span>
+    <span class="line" data-a id="s8-l2"><span class="accent">vos échéances.</span></span>
+  </h2>
+  <div class="abs" data-a id="s8-url" style="left:0;width:1920px;top:700px;display:flex;justify-content:center">
+    <span class="chip" style="font-size:30px;padding:20px 34px;gap:16px"><i class="bi bi-github"></i>github.com/GomuGomuNo01/mini_crm</span>
+  </div>
+  <p class="abs" data-a id="s8-author" style="left:0;width:1920px;top:820px;text-align:center;font:600 23px/1.4 var(--sans);color:var(--encre-3)">
+    Conçu et développé par Dibie Elisee Jules Cedric KOUADIO · ASP.NET Core · MySQL
+  </p>
+</section>
+
+<!-- ======================================================= TRANSITIONS -->
+<div id="tr">
+  <div class="tr-line" id="tr-a"></div>
+  <div class="tr-line" id="tr-b"></div>
+  <div class="tr-disc" id="tr-ring" style="border:5px solid var(--corail)"></div>
+</div>
+
+<!-- ======================================================= INSTRUMENTATION -->
+<div id="hud">
+  <div class="hud-brand" id="hud-brand">
+    <div class="mark"><svg fill="none"><use href="#logo" color="#fff"/></svg></div>
+    <div class="wordmark">mini<i>·</i>crm</div>
+  </div>
+  <div class="hud-chapter" id="hud-chapter"><b id="hud-num">01</b><span id="hud-label">Ouverture</span></div>
+  <div class="hud-count" id="hud-count"><p class="n" id="hud-n">J-60</p><p class="l" id="hud-l">avant l'échéance</p></div>
+  <div class="tl" id="tl">
+    <span class="tl-end" style="left:0">Signature</span>
+    <span class="tl-end" style="right:0">Échéance</span>
+    <div class="tl-track"></div>
+    <div class="tl-fill" id="tl-fill"></div>
+    <div id="tl-marks"></div>
+    <div class="tl-dot" id="tl-dot"></div>
+  </div>
+</div>
+
+<script src="timeline.js"></script>
+<script src="film.js"></script>
+</body>
+</html>

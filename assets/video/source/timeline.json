@@ -1,0 +1,18 @@
+{
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "bpm": 96,
+  "beatsPerBar": 4,
+  "bars": 24,
+  "scenes": [
+    { "id": "s1", "label": "Ouverture",          "from": 0,  "to": 3,  "mode": "light" },
+    { "id": "s2", "label": "Le constat",         "from": 3,  "to": 6,  "mode": "dark",  "in": "split" },
+    { "id": "s3", "label": "La solution",        "from": 6,  "to": 9,  "mode": "light", "in": "disc" },
+    { "id": "s4", "label": "Comment ça marche",  "from": 9,  "to": 14, "mode": "lilac", "in": "split" },
+    { "id": "s5", "label": "Tout est tracé",     "from": 14, "to": 17, "mode": "dark",  "in": "split" },
+    { "id": "s6", "label": "Les avantages",      "from": 17, "to": 20, "mode": "light", "in": "disc" },
+    { "id": "s7", "label": "Sous le capot",      "from": 20, "to": 22, "mode": "dark",  "in": "split" },
+    { "id": "s8", "label": "À vous de jouer",    "from": 22, "to": 24, "mode": "light", "in": "disc" }
+  ]
+}
